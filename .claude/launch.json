@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "agentwiki-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4321"],
+      "cwd": "/Users/jimchien/Desktop/Sideproject/claude/agentwiki/site",
+      "port": 4321
+    }
+  ]
+}

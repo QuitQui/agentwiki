@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro'
+import NodeCard from '../components/NodeCard.astro'
+import { getIndex } from '../lib/data'
+
+const nodes = getIndex()
+const byType = nodes.reduce<Record<string, typeof nodes>>((acc, n) => {
+  const t = n.type
+  acc[t] = acc[t] ?? []
+  acc[t].push(n)
+  return acc
+}, {})
+
+const typeOrder = ['agent_report', 'AgentReport', 'Document', 'CodeFile', 'Concept', 'Decision']
+const sortedTypes = [
+  ...typeOrder.filter(t => byType[t]),
+  ...Object.keys(byType).filter(t => !typeOrder.includes(t)),
+]
+---
+
+<Base title="All Nodes">
+  <main style="max-width: 1100px; margin: 0 auto; padding: 56px 28px 0;">
+
+    <div style="margin-bottom: 48px;">
+      <div style="color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; margin-bottom: 10px;">
+        Project Memory
+      </div>
+      <h1 style="font-size: clamp(32px, 5vw, 56px); margin: 0 0 14px; letter-spacing: -0.04em;">
+        AgentWiki
+      </h1>
+      <p style="color: #94a3b8; max-width: 560px; font-size: 17px; margin: 0;">
+        {nodes.length} compiled node{nodes.length !== 1 ? 's' : ''} — agent reports, docs, and codebase knowledge.
+      </p>
+    </div>
+
+    {sortedTypes.map(type => (
+      <section style="margin-bottom: 48px;">
+        <h2 style="
+          font-size: 13px; font-weight: 700; letter-spacing: .08em;
+          text-transform: uppercase; color: var(--muted);
+          margin: 0 0 16px; padding-bottom: 8px;
+          border-bottom: 1px solid var(--border);
+        ">
+          {type.replace('_', ' ')} · {byType[type].length}
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
+          {byType[type].map(node => <NodeCard node={node} />)}
+        </div>
+      </section>
+    ))}
+
+  </main>
+</Base>

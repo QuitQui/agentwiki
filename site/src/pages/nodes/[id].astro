@@ -1,0 +1,203 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getAllNodes, getNode, idToSlug, slugToId, nodeColor } from '../../lib/data'
+import { marked } from 'marked'
+
+export async function getStaticPaths() {
+  const nodes = getAllNodes()
+  return nodes.map(n => ({ params: { id: idToSlug(n.id) } }))
+}
+
+const { id: slug } = Astro.params
+const node = getNode(slug)
+const color = nodeColor(node.type)
+
+const date = node.created_at
+  ? new Date(node.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null
+
+// Render markdown docs as HTML
+const docHtml = (!node.sections?.length && node.content_text)
+  ? await marked(node.content_text)
+  : null
+---
+
+<Base title={node.title}>
+  <main style="max-width: 860px; margin: 0 auto; padding: 48px 28px 0;">
+
+    <!-- breadcrumb -->
+    <div style="font-size: 13px; color: var(--muted); margin-bottom: 28px;">
+      <a href="/">All nodes</a>
+      <span style="margin: 0 8px; color: var(--border);">›</span>
+      <span style={`color: ${color}`}>{node.type.replace('_', ' ')}</span>
+    </div>
+
+    <!-- header -->
+    <header style="margin-bottom: 36px;">
+      <div style={`
+        display: inline-block; font-size: 11px; font-weight: 700;
+        letter-spacing: .06em; text-transform: uppercase;
+        border: 1px solid ${color}44; color: ${color};
+        border-radius: 999px; padding: 2px 10px; margin-bottom: 12px;
+        background: rgba(255,255,255,.04);
+      `}>
+        {node.type.replace('_', ' ')}
+      </div>
+      <h1 style="font-size: clamp(26px, 4vw, 44px); margin: 0 0 14px; letter-spacing: -0.04em; line-height: 1.1;">
+        {node.title}
+      </h1>
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 13px;">
+        {date && <span>📅 {date}</span>}
+        {node.git_commit && <span>🔖 <code>{node.git_commit}</code></span>}
+        <span style="color: var(--border);">ID: <code style="color: var(--muted)">{node.id}</code></span>
+      </div>
+    </header>
+
+    <!-- entities -->
+    {node.entities?.length > 0 && (
+      <div style="margin-bottom: 28px;">
+        {node.entities.map(e => (
+          <span style="
+            display: inline-block; font-size: 12px; margin: 3px 4px 3px 0;
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 2px 10px; background: rgba(15,23,42,.6); color: #cbd5e1;
+          ">
+            {e.type}: {e.path ?? e.name}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <!-- sections (agent reports) -->
+    {node.sections?.length > 0 && (
+      <div style="margin-bottom: 40px;">
+        {node.sections.map(sec => (
+          <section style="
+            background: linear-gradient(180deg, rgba(30,41,59,.8), rgba(15,23,42,.8));
+            border: 1px solid var(--border); border-radius: 16px;
+            padding: 22px 24px; margin-bottom: 16px;
+          ">
+            <div style="
+              font-size: 11px; font-weight: 700; letter-spacing: .07em;
+              text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+            ">
+              {sec.type}
+            </div>
+            {sec.content_html
+              ? <div class="report-content" set:html={sec.content_html} />
+              : <p style="color: var(--muted); margin: 0;">{sec.content_text}</p>
+            }
+          </section>
+        ))}
+      </div>
+    )}
+
+    <!-- markdown doc content -->
+    {docHtml && (
+      <div class="doc-content" set:html={docHtml} style="margin-bottom: 40px;" />
+    )}
+
+    <!-- links grid -->
+    {(node.outgoing_links?.length > 0 || node.backlinks?.length > 0) && (
+      <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px; margin-bottom: 40px;
+      ">
+        {node.outgoing_links?.length > 0 && (
+          <div style="
+            background: rgba(30,41,59,.7); border: 1px solid var(--border);
+            border-radius: 14px; padding: 18px 20px;
+          ">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 12px;">
+              Links out
+            </div>
+            {node.outgoing_links.map(e => (
+              <div style="padding: 6px 0; border-bottom: 1px solid rgba(51,65,85,.5); font-size: 13px;">
+                <span style="color: var(--muted); font-size: 11px; margin-right: 6px; text-transform: uppercase; letter-spacing: .04em;">
+                  {e.edge_type}
+                </span>
+                <code style="color: #93c5fd;">{e.target_id}</code>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {node.backlinks?.length > 0 && (
+          <div style="
+            background: rgba(30,41,59,.7); border: 1px solid var(--border);
+            border-radius: 14px; padding: 18px 20px;
+          ">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent2); margin-bottom: 12px;">
+              Backlinks
+            </div>
+            {node.backlinks.map(e => (
+              <div style="padding: 6px 0; border-bottom: 1px solid rgba(51,65,85,.5); font-size: 13px;">
+                <span style="color: var(--muted); font-size: 11px; margin-right: 6px; text-transform: uppercase; letter-spacing: .04em;">
+                  {e.edge_type}
+                </span>
+                <a href={`/nodes/${idToSlug(e.source_id)}`} style="color: #c4b5fd;">
+                  {e.source_id}
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+
+  </main>
+</Base>
+
+<style>
+  /* Report HTML section content */
+  .report-content :global(h1),
+  .report-content :global(h2),
+  .report-content :global(h3) {
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+  }
+  .report-content :global(table) {
+    width: 100%; border-collapse: collapse;
+    margin: 14px 0; border-radius: 10px;
+    overflow: hidden; border: 1px solid var(--border);
+  }
+  .report-content :global(th),
+  .report-content :global(td) {
+    padding: 9px 13px; text-align: left;
+    border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .report-content :global(th) { background: rgba(56,189,248,.1); color: #e0f2fe; }
+  .report-content :global(td) { color: #d1d5db; }
+  .report-content :global(tr:last-child td) { border-bottom: 0; }
+  .report-content :global(.decision) {
+    border-left: 4px solid var(--ok);
+    background: rgba(16,185,129,.08);
+    padding: 14px 16px; border-radius: 10px; margin: 14px 0;
+  }
+  .report-content :global(.warning) {
+    border-left: 4px solid var(--warn);
+    background: rgba(251,191,36,.08);
+    padding: 14px 16px; border-radius: 10px; margin: 14px 0;
+  }
+  /* Markdown doc content */
+  .doc-content :global(h1) { font-size: 28px; color: #f8fafc; margin-top: 0; }
+  .doc-content :global(h2) { font-size: 20px; color: #f8fafc; margin-top: 32px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .doc-content :global(h3) { font-size: 16px; color: #f8fafc; }
+  .doc-content :global(p) { color: var(--text); }
+  .doc-content :global(li) { color: var(--text); }
+  .doc-content :global(table) {
+    width: 100%; border-collapse: collapse; margin: 14px 0;
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .doc-content :global(th), .doc-content :global(td) {
+    padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .doc-content :global(th) { background: rgba(56,189,248,.1); color: #e0f2fe; }
+  .doc-content :global(td) { color: #d1d5db; }
+  .doc-content :global(pre) {
+    background: var(--code); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; overflow-x: auto;
+    color: #dbeafe; font-size: 13px;
+  }
+</style>

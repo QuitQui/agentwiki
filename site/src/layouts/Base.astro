@@ -1,0 +1,89 @@
+---
+interface Props {
+  title: string
+}
+const { title } = Astro.props
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} · AgentWiki</title>
+  <style is:global>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1e293b;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --border: #334155;
+      --code: #020617;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0, transparent 36%),
+                  radial-gradient(circle at top right, #581c87 0, transparent 30%),
+                  var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    a { color: #7dd3fc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: .875em;
+      color: #bfdbfe;
+    }
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      color: #dbeafe;
+      font-size: 13px;
+    }
+    h1, h2, h3, h4 { letter-spacing: -0.02em; }
+  </style>
+</head>
+<body>
+  <nav style="
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,23,42,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 52px;
+    display: flex; align-items: center; gap: 24px;
+  ">
+    <a href="/" style="font-weight: 800; font-size: 17px; color: var(--text); letter-spacing: -0.03em;">
+      Agent<span style="color: var(--accent)">Wiki</span>
+    </a>
+    <span style="color: var(--border)">|</span>
+    <a href="/" style="font-size: 14px; color: var(--muted);">All nodes</a>
+  </nav>
+
+  <slot />
+
+  <footer style="
+    max-width: 1100px; margin: 0 auto;
+    padding: 40px 28px 60px;
+    color: var(--muted); font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  ">
+    AgentWiki — project memory compiler · Phase 2
+  </footer>
+</body>
+</html>

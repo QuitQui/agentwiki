@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agentwiki/node",
+  "title": "AgentWiki KnowledgeNode",
+  "description": "Canonical compiled knowledge node emitted by the compiler pipeline.",
+  "type": "object",
+  "required": ["id", "type", "title", "source_path"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Document", "AgentReport", "AgentRun", "CodeFile", "Function", "Class",
+        "Experiment", "Dataset", "Metric", "Decision", "Issue",
+        "PullRequest", "Concept", "Citation", "Asset"
+      ]
+    },
+    "title": { "type": "string" },
+    "source_path": { "type": "string" },
+    "html_path": { "type": "string" },
+    "content_text": { "type": "string" },
+    "content_html": { "type": "string" },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "content_html": { "type": "string" },
+          "content_text": { "type": "string" }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "name": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "outgoing_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "edge_type": { "type": "string" }
+        }
+      }
+    },
+    "backlinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "edge_type": { "type": "string" }
+        }
+      }
+    },
+    "git_commit": { "type": "string" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

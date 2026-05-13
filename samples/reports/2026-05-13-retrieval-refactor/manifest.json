@@ -1,0 +1,28 @@
+{
+  "id": "report:retrieval-refactor-001",
+  "type": "agent_report",
+  "title": "Retrieval Pipeline Refactor",
+  "created_at": "2026-05-13T09:15:00+08:00",
+  "agent": {
+    "name": "coding-agent",
+    "model": "claude-sonnet-4-6",
+    "run_id": "run-001"
+  },
+  "source": {
+    "git_commit": "d4f8a2c",
+    "branch": "feature/retrieval-refactor"
+  },
+  "entities": [
+    { "type": "module", "name": "retrieval" },
+    { "type": "file", "path": "src/retrieval/indexer.py", "name": "indexer" },
+    { "type": "file", "path": "src/retrieval/search.py", "name": "search" },
+    { "type": "file", "path": "src/retrieval/reranker.py", "name": "reranker" }
+  ],
+  "links": [
+    { "type": "modifies", "target": "codefile:src/retrieval/indexer.py" },
+    { "type": "modifies", "target": "codefile:src/retrieval/search.py" },
+    { "type": "modifies", "target": "codefile:src/retrieval/reranker.py" },
+    { "type": "mentions", "target": "concept:hybrid-search" },
+    { "type": "related_to", "target": "concept:bm25" }
+  ]
+}

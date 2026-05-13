@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retrieval Pipeline Refactor Report</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1e293b;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --border: #334155;
+      --code: #020617;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0, transparent 36%),
+                  radial-gradient(circle at top right, #581c87 0, transparent 30%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 28px 80px; }
+    header { margin-bottom: 36px; }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    h1 { font-size: clamp(28px, 4vw, 48px); margin: 10px 0 6px; letter-spacing: -0.04em; }
+    h2 { font-size: 22px; margin-top: 36px; border-bottom: 1px solid var(--border); padding-bottom: 6px; letter-spacing: -0.02em; }
+    h3 { font-size: 17px; color: #f8fafc; margin-top: 22px; }
+    .meta { color: var(--muted); font-size: 14px; display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+    .meta span { display: flex; align-items: center; gap: 5px; }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 2px 9px;
+      background: rgba(56,189,248,.15);
+      border: 1px solid rgba(56,189,248,.3);
+      color: #7dd3fc;
+      margin: 3px 3px 3px 0;
+    }
+    .badge.green { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3); color: #6ee7b7; }
+    .badge.purple { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.3); color: #c4b5fd; }
+    .card {
+      background: linear-gradient(180deg, rgba(30,41,59,.9), rgba(15,23,42,.9));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+    .decision {
+      border-left: 4px solid var(--ok);
+      background: rgba(16,185,129,.08);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 14px 0;
+    }
+    .warning {
+      border-left: 4px solid var(--warn);
+      background: rgba(251,191,36,.08);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 14px 0;
+    }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 13px;
+      color: #dbeafe;
+    }
+    code { font-size: .9em; color: #bfdbfe; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 10px 13px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: rgba(56,189,248,.1); color: #e0f2fe; }
+    td { color: #d1d5db; }
+    tr:last-child td { border-bottom: 0; }
+    .file-link { color: #7dd3fc; font-family: monospace; font-size: 13px; }
+    ul, ol { color: var(--text); }
+    li { margin: 5px 0; }
+    footer { color: var(--muted); border-top: 1px solid var(--border); padding-top: 22px; margin-top: 50px; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<article
+  data-node-id="report:retrieval-refactor-001"
+  data-node-type="agent_report"
+  data-agent="coding-agent"
+  data-commit="d4f8a2c"
+>
+
+<header>
+  <div class="eyebrow">Agent Report · coding-agent · run-001</div>
+  <h1>Retrieval Pipeline Refactor</h1>
+  <div class="meta">
+    <span>📅 <time datetime="2026-05-13T09:15:00+08:00">2026-05-13</time></span>
+    <span>🔀 branch: <code>feature/retrieval-refactor</code></span>
+    <span>🔖 commit: <code>d4f8a2c</code></span>
+  </div>
+  <div style="margin-top:14px">
+    <span class="badge">retrieval</span>
+    <span class="badge green">hybrid-search</span>
+    <span class="badge purple">indexer</span>
+    <span class="badge">embeddings</span>
+  </div>
+</header>
+
+<section data-section-type="summary">
+  <h2>Summary</h2>
+  <div class="card">
+    <p>
+      This agent run refactored the retrieval pipeline to support <strong>hybrid search</strong>:
+      combining dense vector similarity with BM25 keyword scoring. The previous implementation
+      used vector-only retrieval, which underperformed on exact-match queries (e.g. function
+      names, error codes, precise version strings).
+    </p>
+    <div class="decision">
+      <strong>Decision:</strong> Replace single-stage vector retrieval with a two-stage pipeline:
+      BM25 candidate retrieval → reranking by cosine similarity. This aligns with the architecture
+      decision in <code>concept:hybrid-search</code>.
+    </div>
+  </div>
+</section>
+
+<section data-section-type="changes">
+  <h2>Changes Made</h2>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Change</th><th>Lines ±</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="file-link">src/retrieval/indexer.py</td>
+        <td>Added BM25 index construction alongside existing vector index</td>
+        <td>+84 / -12</td>
+      </tr>
+      <tr>
+        <td class="file-link">src/retrieval/search.py</td>
+        <td>Replaced <code>vector_search()</code> with <code>hybrid_search()</code></td>
+        <td>+61 / -38</td>
+      </tr>
+      <tr>
+        <td class="file-link">src/retrieval/reranker.py</td>
+        <td>New file — cosine reranker over BM25 candidates</td>
+        <td>+47 / -0</td>
+      </tr>
+      <tr>
+        <td class="file-link">tests/test_retrieval.py</td>
+        <td>Added 14 new test cases for hybrid search and edge cases</td>
+        <td>+112 / -5</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section data-section-type="affected-code">
+  <h2>Affected Code Symbols</h2>
+  <ul>
+    <li><code>indexer.py::IndexBuilder.build()</code> — now builds both BM25 and vector indices</li>
+    <li><code>indexer.py::IndexBuilder.build_bm25()</code> — new method</li>
+    <li><code>search.py::vector_search()</code> — deprecated, replaced by <code>hybrid_search()</code></li>
+    <li><code>search.py::hybrid_search()</code> — new entry point</li>
+    <li><code>reranker.py::CosineReranker</code> — new class</li>
+    <li><code>reranker.py::CosineReranker.rerank()</code> — reranks a list of BM25 candidates</li>
+  </ul>
+</section>
+
+<section data-section-type="evidence">
+  <h2>Evidence &amp; Benchmarks</h2>
+  <div class="card">
+    <h3>Retrieval quality — MRR@10 on dev set (250 queries)</h3>
+    <table>
+      <thead><tr><th>Strategy</th><th>MRR@10</th><th>Recall@20</th></tr></thead>
+      <tbody>
+        <tr><td>Vector only (before)</td><td>0.61</td><td>0.74</td></tr>
+        <tr><td>BM25 only</td><td>0.54</td><td>0.68</td></tr>
+        <tr><td>Hybrid (BM25 + rerank)</td><td><strong>0.71</strong></td><td><strong>0.82</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warning">
+    <strong>Note:</strong> Latency increased by ~18 ms (p95) due to BM25 candidate expansion.
+    This is within the acceptable budget (&lt;50 ms) defined in the performance contract.
+  </div>
+</section>
+
+<section data-section-type="open-questions">
+  <h2>Open Questions</h2>
+  <ol>
+    <li>Should BM25 candidate count (currently k=50) be configurable per query type?</li>
+    <li>Is the current tokenizer (whitespace split) sufficient, or do we need a subword tokenizer for BM25?</li>
+    <li>Should we persist the BM25 index to disk to avoid rebuild on startup?</li>
+  </ol>
+</section>
+
+</article>
+
+<footer>
+  <p>Generated by <strong>coding-agent</strong> (run-001) · AgentWiki report format v0.1</p>
+</footer>
+
+</div>
+</body>
+</html>

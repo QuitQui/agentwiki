@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agentwiki/manifest",
+  "title": "AgentWiki Report Manifest",
+  "description": "Machine-readable metadata companion to a report.html agent report.",
+  "type": "object",
+  "required": ["id", "type", "title", "created_at", "agent", "entities", "links"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable unique identifier for this report node, e.g. 'report:agent-run-001'.",
+      "pattern": "^[a-z_]+:[a-z0-9_-]+$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "agent_report", "document", "decision", "experiment",
+        "issue", "pull_request", "concept"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agent": {
+      "type": "object",
+      "required": ["name", "model", "run_id"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "model": { "type": "string" },
+        "run_id": { "type": "string" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git_commit": { "type": "string" },
+        "branch": { "type": "string" }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "type": { "type": "string" },
+          "name": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "target"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "links_to", "backlinks_to", "mentions", "implements",
+              "modifies", "generated_by", "depends_on", "imports",
+              "evaluates", "cites", "supersedes", "contradicts", "related_to"
+            ]
+          },
+          "target": { "type": "string" }
+        }
+      }
+    }
+  }
+}
