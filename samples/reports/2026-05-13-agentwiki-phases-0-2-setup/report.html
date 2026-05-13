@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentWiki Phases 0–2 Setup</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #111827; --panel2: #1e293b;
+      --text: #e5e7eb; --muted: #94a3b8; --accent: #38bdf8;
+      --accent2: #a78bfa; --ok: #34d399; --warn: #fbbf24;
+      --err: #f87171; --border: #334155; --code: #020617;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0, transparent 36%),
+                  radial-gradient(circle at top right, #581c87 0, transparent 30%),
+                  var(--bg);
+      color: var(--text); line-height: 1.65;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 28px 80px; }
+    .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+    h1 { font-size: clamp(28px, 4vw, 48px); margin: 10px 0 6px; letter-spacing: -0.04em; }
+    h2 { font-size: 22px; margin-top: 36px; border-bottom: 1px solid var(--border); padding-bottom: 6px; letter-spacing: -0.02em; }
+    h3 { font-size: 17px; color: #f8fafc; margin-top: 22px; }
+    .meta { color: var(--muted); font-size: 14px; display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 9px; background: rgba(56,189,248,.15); border: 1px solid rgba(56,189,248,.3); color: #7dd3fc; margin: 3px 3px 3px 0; }
+    .badge.green { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3); color: #6ee7b7; }
+    .badge.purple { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.3); color: #c4b5fd; }
+    .card { background: linear-gradient(180deg, rgba(30,41,59,.9), rgba(15,23,42,.9)); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+    .decision { border-left: 4px solid var(--ok); background: rgba(16,185,129,.08); padding: 14px 16px; border-radius: 10px; margin: 14px 0; }
+    .warning { border-left: 4px solid var(--warn); background: rgba(251,191,36,.08); padding: 14px 16px; border-radius: 10px; margin: 14px 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font-size: 13px; color: #dbeafe; }
+    code { font-size: .9em; color: #bfdbfe; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 10px 13px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: rgba(56,189,248,.1); color: #e0f2fe; }
+    td { color: #d1d5db; }
+    tr:last-child td { border-bottom: 0; }
+    ul, ol { color: var(--text); }
+    li { margin: 5px 0; }
+    footer { color: var(--muted); border-top: 1px solid var(--border); padding-top: 22px; margin-top: 50px; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<article
+  data-node-id="report:agentwiki-phases-0-2-setup"
+  data-node-type="agent_report"
+  data-agent="claude-code"
+  data-commit="a48ad8d"
+>
+
+<header>
+  <div class="eyebrow">Agent Report · claude-code · 2026-05-13</div>
+  <h1>AgentWiki Phases 0–2 Setup</h1>
+  <div class="meta">
+    <span>📅 <time datetime="2026-05-13">May 13, 2026</time></span>
+    <span>🔀 branch: <code>main</code></span>
+    <span>🔖 commit: <code>a48ad8d</code></span>
+  </div>
+  <div style="margin-top:14px">
+    <span class="badge">compiler</span>
+    <span class="badge green">astro</span>
+    <span class="badge purple">schemas</span>
+    <span class="badge">uv</span>
+    <span class="badge">CLAUDE.md</span>
+  </div>
+</header>
+
+<section data-section-type="summary">
+  <h2>Summary</h2>
+  <div class="card">
+    <p>
+      This session bootstrapped the <strong>AgentWiki</strong> project from scratch — a
+      project memory compiler for AI-assisted software development. The goal was to build a
+      system where AI agents emit rich HTML reports, and AgentWiki compiles them into a
+      searchable, graph-connected website that both humans and future agents can query.
+    </p>
+    <div class="decision">
+      <strong>Core design decision:</strong> HTML-first reports (not Markdown or plain text)
+      as the canonical agent output format. Each report is a <code>report.html</code> +
+      <code>manifest.json</code> + <code>chunks.jsonl</code> triplet. The HTML is the human
+      artifact; the manifest and chunks are the machine-readable layer.
+    </div>
+    <p>
+      Three phases were completed: repo skeleton with JSON schemas and synthetic samples
+      (Phase 0), a full compiler pipeline producing typed <code>KnowledgeNode</code> JSON
+      (Phase 1), and an Astro 5 static website rendering node cards and detail pages (Phase 2).
+      Workspace rules and the <code>/report</code> global command were also established.
+    </p>
+  </div>
+</section>
+
+<section data-section-type="changes">
+  <h2>Changes Made</h2>
+  <table>
+    <thead>
+      <tr><th>File / Directory</th><th>What changed</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>pyproject.toml</code></td><td>uv project init, entry point <code>agentwiki</code>, build-system declared for reliable editable installs</td></tr>
+      <tr><td><code>compiler/models.py</code></td><td>KnowledgeNode, Edge, Section, Entity TypedDicts; NodeType and EdgeType literals</td></tr>
+      <tr><td><code>compiler/compiler.py</code></td><td>Full pipeline: parse → resolve backlinks → emit dist/</td></tr>
+      <tr><td><code>compiler/cli.py</code></td><td><code>compile</code> and <code>dev</code> Click commands with Rich output</td></tr>
+      <tr><td><code>compiler/parser/html_report.py</code></td><td>Parses report.html + manifest.json into KnowledgeNode</td></tr>
+      <tr><td><code>compiler/parser/markdown_doc.py</code></td><td>Parses .md files; extracts H2-level sections</td></tr>
+      <tr><td><code>schema/manifest.schema.json</code></td><td>JSON Schema for manifest validation</td></tr>
+      <tr><td><code>schema/node.schema.json</code></td><td>JSON Schema for KnowledgeNode output format</td></tr>
+      <tr><td><code>samples/reports/2026-05-13-retrieval-refactor/</code></td><td>Synthetic agent report (HTML + manifest + chunks) used as test fixture</td></tr>
+      <tr><td><code>samples/docs/</code></td><td>overview.md and architecture.md as sample document inputs</td></tr>
+      <tr><td><code>site/</code></td><td>Astro 5 site: Base layout, NodeCard component, index page, node detail page [id].astro</td></tr>
+      <tr><td><code>CLAUDE.md</code> (workspace + project)</td><td>Workspace rules: gitmoji commits, uv enforcement, ask before destructive ops, AgentWiki report format standard</td></tr>
+      <tr><td><code>~/.claude/commands/report.md</code></td><td>Global /report command — generates AgentWiki-compatible report from session context</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section data-section-type="affected-code">
+  <h2>Key Symbols</h2>
+  <ul>
+    <li><code>compiler/compiler.py::compile_inputs()</code> — discovers all report dirs and .md files under input_dir</li>
+    <li><code>compiler/compiler.py::resolve_backlinks()</code> — cross-references outgoing_links to inject backlinks on target nodes</li>
+    <li><code>compiler/compiler.py::emit()</code> — writes per-node JSON + index.json to dist/</li>
+    <li><code>compiler/models.py::KnowledgeNode</code> — canonical TypedDict for all compiled nodes</li>
+    <li><code>compiler/cli.py::compile</code> — validates manifests then runs full pipeline</li>
+    <li><code>compiler/cli.py::dev</code> — compile + starts Astro dev server on port 4321</li>
+    <li><code>site/src/lib/data.ts::getIndex()</code> — reads dist/index.json at build time</li>
+    <li><code>site/src/lib/data.ts::getNode()</code> — reads individual node JSON by slug</li>
+    <li><code>site/src/pages/nodes/[id].astro</code> — renders full node detail: sections, entities, links, backlinks</li>
+  </ul>
+</section>
+
+<section data-section-type="evidence">
+  <h2>Evidence</h2>
+  <div class="card">
+    <h3>CLI output — <code>uv run agentwiki compile</code></h3>
+    <pre><code>✓ Compiled 3 node(s) → dist/nodes/ + dist/index.json
+  report:retrieval-refactor-001   5 sections  5 links
+  doc:architecture                4 sections
+  doc:overview                    4 sections</code></pre>
+  </div>
+  <div class="card">
+    <h3>Site — localhost:4321</h3>
+    <p>
+      Homepage renders node cards grouped by type (Agent Report · 1, Document · 2).
+      Detail page for the retrieval refactor report shows all 5 section cards, 4 entity
+      pills, and 5 typed outgoing links.
+    </p>
+  </div>
+  <div class="decision">
+    <strong>Reliability fix:</strong> Added <code>[build-system]</code> to
+    <code>pyproject.toml</code> so <code>uv sync</code> always produces an editable install.
+    Without it, <code>uv sync</code> could build a wheel that didn't wire the
+    <code>compiler</code> package, causing <code>ModuleNotFoundError</code>.
+  </div>
+</section>
+
+<section data-section-type="open-questions">
+  <h2>Open Questions</h2>
+  <ol>
+    <li>Phase 3 (search): Pagefind for keyword or go straight to hybrid (Pagefind + LanceDB vector)?</li>
+    <li>Should the <code>/report</code> command also auto-run <code>uv run agentwiki compile</code> after writing the files?</li>
+    <li>Git identity is auto-configured from hostname — should we set <code>user.name</code> and <code>user.email</code> globally?</li>
+  </ol>
+</section>
+
+</article>
+
+<footer>
+  <p>Generated by <strong>claude-code</strong> via /report · AgentWiki report format v0.1</p>
+</footer>
+
+</div>
+</body>
+</html>
