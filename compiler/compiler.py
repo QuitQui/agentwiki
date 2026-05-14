@@ -7,6 +7,7 @@ from pathlib import Path
 from compiler.models import KnowledgeNode, Edge
 from compiler.parser.html_report import parse_report_dir
 from compiler.parser.markdown_doc import parse_markdown
+from compiler.search import build_search_index
 
 
 def _safe_id_to_filename(node_id: str) -> str:
@@ -84,9 +85,11 @@ def emit(nodes: list[KnowledgeNode], output_dir: Path) -> None:
     )
 
 
-def run(input_dir: Path, output_dir: Path) -> list[KnowledgeNode]:
-    """Full pipeline: parse → backlinks → emit. Returns the final node list."""
+def run(input_dir: Path, output_dir: Path, embed: bool = True) -> list[KnowledgeNode]:
+    """Full pipeline: parse → backlinks → emit → search index. Returns the final node list."""
     nodes = compile_inputs(input_dir)
     nodes = resolve_backlinks(nodes)
     emit(nodes, output_dir)
+    if embed:
+        build_search_index(nodes, output_dir)
     return nodes

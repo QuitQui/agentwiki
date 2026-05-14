@@ -10,5 +10,9 @@
   "dependencies": {
     "astro": "^5.0.0",
     "marked": "^15.0.0"
+  },
+  "devDependencies": {
+    "@pagefind/default-ui": "^1.5.2",
+    "pagefind": "^1.5.2"
   }
 }
