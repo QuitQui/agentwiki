@@ -47,8 +47,9 @@ def main() -> None:
 @main.command()
 @click.option("--input-dir", "-i", default="samples", show_default=True)
 @click.option("--output-dir", "-o", default="dist", show_default=True)
-def compile(input_dir: str, output_dir: str) -> None:
-    """Compile inputs to dist/: per-node JSON + index.json."""
+@click.option("--no-embed", is_flag=True, default=False, help="Skip vector index build.")
+def compile(input_dir: str, output_dir: str, no_embed: bool) -> None:
+    """Compile inputs to dist/: per-node JSON + index.json + search index."""
     root = Path(input_dir)
     out = Path(output_dir)
 
@@ -67,7 +68,7 @@ def compile(input_dir: str, output_dir: str) -> None:
         raise SystemExit(1)
 
     # --- run the full pipeline ---
-    nodes = core.run(root, out)
+    nodes = core.run(root, out, embed=not no_embed)
 
     # --- report ---
     table = Table(box=box.SIMPLE_HEAVY, show_lines=False)
@@ -89,9 +90,10 @@ def compile(input_dir: str, output_dir: str) -> None:
         )
 
     console.print(table)
+    embed_note = "" if no_embed else f" + [cyan]{out}/similar.json[/cyan] + [cyan]{out}/lance/[/cyan]"
     console.print(
         f"\n[bold green]✓[/bold green] Compiled [bold]{len(nodes)}[/bold] node(s) → "
-        f"[cyan]{out}/nodes/[/cyan] + [cyan]{out}/index.json[/cyan]"
+        f"[cyan]{out}/nodes/[/cyan] + [cyan]{out}/index.json[/cyan]{embed_note}"
     )
 
 
@@ -118,3 +120,37 @@ def dev(input_dir: str, output_dir: str, port: int) -> None:
         cwd=site_dir,
         check=True,
     )
+
+
+@main.command(name="build")
+@click.option("--input-dir", "-i", default="samples", show_default=True)
+@click.option("--output-dir", "-o", default="dist", show_default=True)
+def build_cmd(input_dir: str, output_dir: str) -> None:
+    """Compile + Astro build + Pagefind index → site/dist/ (production)."""
+    repo_root = Path(__file__).parent.parent
+    site_dir = repo_root / "site"
+
+    if not site_dir.exists():
+        console.print("[red]site/ directory not found.[/red]")
+        raise SystemExit(1)
+
+    # 1. compile
+    ctx = click.get_current_context()
+    ctx.invoke(compile, input_dir=input_dir, output_dir=output_dir, no_embed=False)
+
+    # 2. astro build
+    console.rule("[bold cyan]Astro build[/bold cyan]")
+    subprocess.run(["npm", "run", "build"], cwd=site_dir, check=True)
+
+    # 3. pagefind index
+    console.rule("[bold cyan]Pagefind index[/bold cyan]")
+    site_dist = site_dir / "dist"
+    result = subprocess.run(
+        ["npx", "pagefind", "--site", str(site_dist)],
+        cwd=site_dir,
+        check=False,
+    )
+    if result.returncode != 0:
+        console.print("[yellow]⚠[/yellow] Pagefind not found — run [cyan]npm install[/cyan] in site/ first.")
+    else:
+        console.print(f"\n[bold green]✓[/bold green] Production build ready → [cyan]{site_dist}/[/cyan]")

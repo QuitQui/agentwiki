@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro'
 import { getAllNodes, getNode, idToSlug, slugToId, nodeColor } from '../../lib/data'
 import { marked } from 'marked'
+import { readFileSync, existsSync } from 'node:fs'
+import path from 'node:path'
 
 export async function getStaticPaths() {
   const nodes = getAllNodes()
@@ -11,6 +13,13 @@ export async function getStaticPaths() {
 const { id: slug } = Astro.params
 const node = getNode(slug)
 const color = nodeColor(node.type)
+
+// Load pre-computed similar nodes (Phase 3)
+const DIST_DIR = path.resolve(import.meta.dirname, '..', '..', '..', '..', 'dist')
+const similarPath = path.join(DIST_DIR, 'similar.json')
+const similarAll: Record<string, {id: string; title: string; score: number}[]> =
+  existsSync(similarPath) ? JSON.parse(readFileSync(similarPath, 'utf-8')) : {}
+const related = similarAll[node.id] ?? []
 
 const date = node.created_at
   ? new Date(node.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -23,7 +32,9 @@ const docHtml = (!node.sections?.length && node.content_text)
 ---
 
 <Base title={node.title}>
-  <main style="max-width: 860px; margin: 0 auto; padding: 48px 28px 0;">
+  <main data-pagefind-body style="max-width: 860px; margin: 0 auto; padding: 48px 28px 0;">
+    <span data-pagefind-meta="title">{node.title}</span>
+    <span data-pagefind-meta="type">{node.type}</span>
 
     <!-- breadcrumb -->
     <div style="font-size: 13px; color: var(--muted); margin-bottom: 28px;">
@@ -143,6 +154,36 @@ const docHtml = (!node.sections?.length && node.content_text)
             ))}
           </div>
         )}
+      </div>
+    )}
+
+    <!-- related nodes (Phase 3: vector similarity) -->
+    {related.length > 0 && (
+      <div data-pagefind-ignore style="margin-bottom: 40px;">
+        <div style="
+          font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .06em; color: var(--muted); margin-bottom: 12px;
+          padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        ">
+          Related nodes
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+          {related.map(r => (
+            <a
+              href={`/nodes/${idToSlug(r.id)}`}
+              style="
+                display: inline-flex; align-items: center; gap: 8px;
+                background: rgba(30,41,59,.7); border: 1px solid var(--border);
+                border-radius: 10px; padding: 8px 14px; font-size: 13px;
+                color: var(--text); text-decoration: none;
+                transition: border-color .15s;
+              "
+            >
+              <span>{r.title}</span>
+              <span style="font-size: 11px; color: var(--muted);">{(r.score * 100).toFixed(0)}%</span>
+            </a>
+          ))}
+        </div>
       </div>
     )}
 
