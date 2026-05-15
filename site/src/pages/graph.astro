@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro'
+import { getGraphStats } from '../lib/graph'
+import { getAllNodes, idToSlug, nodeColor } from '../lib/data'
+
+const stats = getGraphStats()
+const nodes = getAllNodes()
+
+// Build edge list from outgoing_links for the force graph
+const nodeSet = new Set(nodes.map(n => n.id))
+const edges: { source: string; target: string; type: string }[] = []
+for (const n of nodes) {
+  for (const e of n.outgoing_links ?? []) {
+    if (nodeSet.has(e.target_id)) {
+      edges.push({ source: e.source_id, target: e.target_id, type: e.edge_type })
+    }
+  }
+}
+
+const graphData = {
+  nodes: nodes.map(n => ({ id: n.id, title: n.title, type: n.type, color: nodeColor(n.type) })),
+  edges,
+}
+---
+
+<Base title="Knowledge Graph">
+  <main style="max-width: 1100px; margin: 0 auto; padding: 48px 28px 0;">
+
+    <h1 style="font-size: clamp(24px,4vw,40px); margin: 0 0 8px; letter-spacing: -0.04em;">
+      Knowledge Graph
+    </h1>
+    <p style="color: var(--muted); font-size: 14px; margin: 0 0 32px;">
+      Phase 4 · Kuzu embedded graph DB
+    </p>
+
+    <!-- stats bar -->
+    {stats && (
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
+        {[
+          { label: 'Nodes', value: stats.node_count },
+          { label: 'Edges', value: stats.edge_count },
+          { label: 'Top node', value: stats.top_by_degree[0]?.title ?? '—' },
+        ].map(s => (
+          <div style="
+            background: rgba(30,41,59,.7); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 20px; min-width: 120px;
+          ">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px;">
+              {s.label}
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--accent);">{s.value}</div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- force graph canvas -->
+    <div style="
+      background: rgba(15,23,42,.9); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; margin-bottom: 40px;
+    ">
+      <canvas id="graph-canvas" width="1040" height="520" style="width:100%; display:block;"></canvas>
+    </div>
+
+    <!-- top by degree table -->
+    {stats && stats.top_by_degree.length > 0 && (
+      <div style="margin-bottom: 40px;">
+        <div style="
+          font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .06em; color: var(--muted); margin-bottom: 12px;
+          padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        ">
+          Top nodes by degree
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          {stats.top_by_degree.map(d => (
+            <div style="
+              display: flex; align-items: center; gap: 12px;
+              background: rgba(30,41,59,.5); border: 1px solid var(--border);
+              border-radius: 10px; padding: 10px 16px; font-size: 13px;
+            ">
+              <span style="flex: 1; color: var(--text);">{d.title}</span>
+              <span style="color: var(--accent); font-size: 12px;">out: {d.out_degree}</span>
+              <span style="color: var(--accent2); font-size: 12px;">in: {d.in_degree}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+  </main>
+</Base>
+
+<script define:vars={{ graphData }}>
+// Minimal force-directed graph — no external deps
+const canvas = document.getElementById('graph-canvas')
+const ctx = canvas.getContext('2d')
+const W = canvas.width, H = canvas.height
+const nodes = graphData.nodes.map(n => ({ ...n, x: W / 2 + (Math.random() - 0.5) * 300, y: H / 2 + (Math.random() - 0.5) * 200, vx: 0, vy: 0 }))
+const edges = graphData.edges
+const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]))
+
+const REPEL = 4000, ATTRACT = 0.005, DAMPING = 0.85, CENTER = 0.003
+
+function tick() {
+  for (const n of nodes) {
+    n.vx += (W / 2 - n.x) * CENTER
+    n.vy += (H / 2 - n.y) * CENTER
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j]
+      const dx = b.x - a.x, dy = b.y - a.y
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1
+      const force = REPEL / (dist * dist)
+      a.vx -= (dx / dist) * force; a.vy -= (dy / dist) * force
+      b.vx += (dx / dist) * force; b.vy += (dy / dist) * force
+    }
+  }
+  for (const e of edges) {
+    const a = nodeMap[e.source], b = nodeMap[e.target]
+    if (!a || !b) continue
+    const dx = b.x - a.x, dy = b.y - a.y
+    a.vx += dx * ATTRACT; a.vy += dy * ATTRACT
+    b.vx -= dx * ATTRACT; b.vy -= dy * ATTRACT
+  }
+  for (const n of nodes) {
+    n.vx *= DAMPING; n.vy *= DAMPING
+    n.x += n.vx; n.y += n.vy
+    n.x = Math.max(30, Math.min(W - 30, n.x))
+    n.y = Math.max(20, Math.min(H - 20, n.y))
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H)
+  ctx.strokeStyle = 'rgba(100,116,139,.4)'
+  ctx.lineWidth = 1
+  for (const e of edges) {
+    const a = nodeMap[e.source], b = nodeMap[e.target]
+    if (!a || !b) continue
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
+  }
+  for (const n of nodes) {
+    ctx.beginPath()
+    ctx.arc(n.x, n.y, 8, 0, Math.PI * 2)
+    ctx.fillStyle = n.color + 'cc'
+    ctx.fill()
+    ctx.strokeStyle = n.color
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+    ctx.fillStyle = '#f1f5f9'
+    ctx.font = '11px system-ui, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(n.title.slice(0, 22), n.x, n.y + 20)
+  }
+}
+
+let frame = 0
+function loop() {
+  tick(); draw()
+  frame++
+  if (frame < 300) requestAnimationFrame(loop)
+}
+loop()
+</script>

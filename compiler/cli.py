@@ -48,8 +48,9 @@ def main() -> None:
 @click.option("--input-dir", "-i", default="samples", show_default=True)
 @click.option("--output-dir", "-o", default="dist", show_default=True)
 @click.option("--no-embed", is_flag=True, default=False, help="Skip vector index build.")
-def compile(input_dir: str, output_dir: str, no_embed: bool) -> None:
-    """Compile inputs to dist/: per-node JSON + index.json + search index."""
+@click.option("--no-graph", is_flag=True, default=False, help="Skip Kuzu graph build.")
+def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool) -> None:
+    """Compile inputs to dist/: per-node JSON + index.json + search index + graph."""
     root = Path(input_dir)
     out = Path(output_dir)
 
@@ -57,7 +58,7 @@ def compile(input_dir: str, output_dir: str, no_embed: bool) -> None:
         console.print(f"[red]Input directory not found:[/red] {root}")
         raise SystemExit(1)
 
-    console.rule("[bold cyan]AgentWiki compiler — Phase 1[/bold cyan]")
+    console.rule("[bold cyan]AgentWiki compiler — Phase 4[/bold cyan]")
 
     # --- validate manifests before compiling ---
     manifest_schema = _load_schema("manifest.schema.json")
@@ -68,7 +69,7 @@ def compile(input_dir: str, output_dir: str, no_embed: bool) -> None:
         raise SystemExit(1)
 
     # --- run the full pipeline ---
-    nodes = core.run(root, out, embed=not no_embed)
+    nodes = core.run(root, out, embed=not no_embed, graph=not no_graph)
 
     # --- report ---
     table = Table(box=box.SIMPLE_HEAVY, show_lines=False)
@@ -91,9 +92,10 @@ def compile(input_dir: str, output_dir: str, no_embed: bool) -> None:
 
     console.print(table)
     embed_note = "" if no_embed else f" + [cyan]{out}/similar.json[/cyan] + [cyan]{out}/lance/[/cyan]"
+    graph_note = "" if no_graph else f" + [cyan]{out}/neighbors.json[/cyan] + [cyan]{out}/graph_stats.json[/cyan] + [cyan]{out}/kuzu/[/cyan]"
     console.print(
         f"\n[bold green]✓[/bold green] Compiled [bold]{len(nodes)}[/bold] node(s) → "
-        f"[cyan]{out}/nodes/[/cyan] + [cyan]{out}/index.json[/cyan]{embed_note}"
+        f"[cyan]{out}/nodes/[/cyan] + [cyan]{out}/index.json[/cyan]{embed_note}{graph_note}"
     )
 
 

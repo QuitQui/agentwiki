@@ -42,8 +42,8 @@ def build_search_index(nodes: list[KnowledgeNode], output_dir: Path) -> None:
     vectorizer = TfidfVectorizer(
         min_df=1, ngram_range=(1, 2), sublinear_tf=True, max_features=4096
     )
-    tfidf_matrix = vectorizer.fit_transform(corpus).toarray().astype(np.float32)
-    sim_matrix = cosine_similarity(tfidf_matrix)
+    tfidf_sparse = vectorizer.fit_transform(corpus)
+    sim_matrix = cosine_similarity(tfidf_sparse)
 
     # --- LanceDB storage ---
     lance_dir = output_dir / "lance"
@@ -51,10 +51,10 @@ def build_search_index(nodes: list[KnowledgeNode], output_dir: Path) -> None:
     db = lancedb.connect(str(lance_dir))
 
     records = [
-        {"id": nid, "title": titles[nid], "vector": vec.tolist()}
-        for nid, vec in zip(ids, tfidf_matrix)
+        {"id": nid, "title": titles[nid], "vector": tfidf_sparse[i].toarray().astype(np.float32)[0].tolist()}
+        for i, nid in enumerate(ids)
     ]
-    if "nodes" in db.table_names():
+    if "nodes" in db.list_tables():
         db.drop_table("nodes")
     db.create_table("nodes", data=records)
 
