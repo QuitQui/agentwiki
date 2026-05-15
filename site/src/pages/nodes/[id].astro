@@ -2,8 +2,8 @@
 import Base from '../../layouts/Base.astro'
 import { getAllNodes, getNode, idToSlug, slugToId, nodeColor } from '../../lib/data'
 import { marked } from 'marked'
-import { readFileSync, existsSync } from 'node:fs'
-import path from 'node:path'
+import { getSimilar } from '../../lib/similar'
+import { getNeighbors } from '../../lib/graph'
 
 export async function getStaticPaths() {
   const nodes = getAllNodes()
@@ -14,12 +14,8 @@ const { id: slug } = Astro.params
 const node = getNode(slug)
 const color = nodeColor(node.type)
 
-// Load pre-computed similar nodes (Phase 3)
-const DIST_DIR = path.resolve(import.meta.dirname, '..', '..', '..', '..', 'dist')
-const similarPath = path.join(DIST_DIR, 'similar.json')
-const similarAll: Record<string, {id: string; title: string; score: number}[]> =
-  existsSync(similarPath) ? JSON.parse(readFileSync(similarPath, 'utf-8')) : {}
-const related = similarAll[node.id] ?? []
+const related = getSimilar(node.id)
+const neighbors = getNeighbors(node.id)
 
 const date = node.created_at
   ? new Date(node.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -181,6 +177,38 @@ const docHtml = (!node.sections?.length && node.content_text)
             >
               <span>{r.title}</span>
               <span style="font-size: 11px; color: var(--muted);">{(r.score * 100).toFixed(0)}%</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- graph neighborhood (Phase 4: Kuzu) -->
+    {neighbors.length > 0 && (
+      <div data-pagefind-ignore style="margin-bottom: 40px;">
+        <div style="
+          font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .06em; color: var(--muted); margin-bottom: 12px;
+          padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        ">
+          Graph neighborhood
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+          {neighbors.map(nb => (
+            <a
+              href={`/nodes/${idToSlug(nb.id)}`}
+              style="
+                display: inline-flex; align-items: center; gap: 8px;
+                background: rgba(30,41,59,.7); border: 1px solid var(--border);
+                border-radius: 10px; padding: 8px 14px; font-size: 13px;
+                color: var(--text); text-decoration: none;
+                transition: border-color .15s;
+              "
+            >
+              <span>{nb.title}</span>
+              <span style={`font-size: 11px; color: ${nb.hops === 1 ? 'var(--accent)' : 'var(--muted)'};`}>
+                {nb.hops === 1 ? '1 hop' : '2 hops'}
+              </span>
             </a>
           ))}
         </div>

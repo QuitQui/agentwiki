@@ -21,12 +21,15 @@ uv run agentwiki dev             # compile + start Astro at localhost:4321
 | 0 — Skeleton + schemas | ✅ done |
 | 1 — Compiler pipeline | ✅ done |
 | 2 — Astro website | ✅ done |
-| 3 — Search (Pagefind + vector) | ⬜ next |
-| 4 — Knowledge graph (Kuzu) | ⬜ |
+| 3 — Search (Pagefind + vector) | ⬜ (PR open) |
+| 4 — Knowledge graph (Kuzu) | ✅ done |
 | 5 — Codebase integration (tree-sitter) | ⬜ |
 | 6 — Agent API (REST → MCP) | ⬜ |
 
 ## Output format
 - `dist/index.json` — all nodes summarised
 - `dist/nodes/<id>.json` — one compiled KnowledgeNode per input
+- `dist/neighbors.json` — per-node 1- and 2-hop graph neighbors (Phase 4)
+- `dist/graph_stats.json` — node/edge counts + top nodes by degree (Phase 4)
+- `dist/kuzu/` — embedded Kuzu graph DB (Phase 4)
 - Node IDs use `:` as separator (`report:foo`); filenames use `__` (`report__foo.json`)
