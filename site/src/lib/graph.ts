@@ -22,9 +22,9 @@ export interface GraphStats {
   top_by_degree: DegreeEntry[]
 }
 
-const DIST_DIR =
-  process.env.AGENTWIKI_DIST_DIR ??
-  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'dist')
+const _defaultDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'dist')
+const _envDist = process.env.AGENTWIKI_DIST_DIR ? path.resolve(process.env.AGENTWIKI_DIST_DIR) : null
+const DIST_DIR = _envDist ?? _defaultDist
 
 let _neighbors: Record<string, Neighbor[]> | null = null
 let _stats: GraphStats | null = null

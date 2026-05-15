@@ -4,6 +4,7 @@ import { getAllNodes, getNode, idToSlug, slugToId, nodeColor } from '../../lib/d
 import { marked } from 'marked'
 import { getSimilar } from '../../lib/similar'
 import { getNeighbors } from '../../lib/graph'
+import { sanitize } from '../../lib/sanitize'
 
 export async function getStaticPaths() {
   const nodes = getAllNodes()
@@ -23,7 +24,7 @@ const date = node.created_at
 
 // Render markdown docs as HTML
 const docHtml = (!node.sections?.length && node.content_text)
-  ? await marked(node.content_text)
+  ? sanitize(await marked(node.content_text))
   : null
 ---
 
@@ -91,7 +92,7 @@ const docHtml = (!node.sections?.length && node.content_text)
               {sec.type}
             </div>
             {sec.content_html
-              ? <div class="report-content" set:html={sec.content_html} />
+              ? <div class="report-content" set:html={sanitize(sec.content_html)} />
               : <p style="color: var(--muted); margin: 0;">{sec.content_text}</p>
             }
           </section>

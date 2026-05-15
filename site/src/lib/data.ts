@@ -69,9 +69,12 @@ export function getAllNodes(): KnowledgeNode[] {
 }
 
 export function getNode(slug: string): KnowledgeNode {
-  return JSON.parse(
-    readFileSync(path.join(DIST_DIR, 'nodes', `${slug}.json`), 'utf-8')
-  )
+  const nodesDir = path.join(DIST_DIR, 'nodes')
+  const resolved = path.resolve(nodesDir, `${slug}.json`)
+  if (!resolved.startsWith(nodesDir + path.sep)) {
+    throw new Error(`Invalid node slug: ${slug}`)
+  }
+  return JSON.parse(readFileSync(resolved, 'utf-8'))
 }
 
 /** node id → URL slug (replace : with __) */
