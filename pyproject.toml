@@ -8,9 +8,12 @@ dependencies = [
     "beautifulsoup4>=4.14.3",
     "click>=8.3.3",
     "jsonschema>=4.0,<4.24",
+    "lancedb>=0.21",
     "lxml>=6.1.0",
+    "numpy>=1.26",
     "referencing<0.36",
     "rich>=15.0.0",
+    "scikit-learn>=1.5",
 ]
 
 [build-system]

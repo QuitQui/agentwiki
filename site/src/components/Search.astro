@@ -1,0 +1,76 @@
+---
+// Pagefind search — only works in production builds (after `uv run agentwiki build`)
+---
+
+<div id="search-wrapper" style="position: relative; display: flex; align-items: center;">
+  <div id="search" style="min-width: 200px;"></div>
+</div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+
+<style>
+  /* Override Pagefind default styles to fit the dark nav */
+  #search .pagefind-ui__search-input {
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    height: 32px;
+    padding: 0 12px;
+  }
+  #search .pagefind-ui__search-input:focus {
+    outline: 1px solid var(--accent);
+    border-color: var(--accent);
+  }
+  #search .pagefind-ui__search-clear { color: var(--muted); }
+  #search .pagefind-ui__results-area {
+    position: absolute;
+    top: 40px; right: 0;
+    width: 420px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    z-index: 999;
+    max-height: 480px;
+    overflow-y: auto;
+    box-shadow: 0 16px 48px rgba(0,0,0,.6);
+  }
+  #search .pagefind-ui__result {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    font-size: 13px;
+  }
+  #search .pagefind-ui__result:last-child { border-bottom: none; }
+  #search .pagefind-ui__result-link { color: var(--accent); font-weight: 600; }
+  #search .pagefind-ui__result-excerpt { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  #search .pagefind-ui__message { color: var(--muted); font-size: 12px; padding: 8px 0; }
+  /* hide the button group / filters for now */
+  #search .pagefind-ui__search-form { position: relative; }
+</style>
+
+<script>
+  // Load Pagefind only in production (the index is built by `npx pagefind`)
+  async function initSearch() {
+    try {
+      // @ts-ignore — Pagefind UI is loaded dynamically after build
+      const { PagefindUI } = await import('/pagefind/pagefind-ui.js')
+      new PagefindUI({
+        element: '#search',
+        showSubResults: false,
+        resetStyles: false,
+        translations: {
+          placeholder: 'Search nodes…',
+        },
+      })
+    } catch {
+      // In dev mode, Pagefind index doesn't exist — hide gracefully
+      const wrapper = document.getElementById('search-wrapper')
+      if (wrapper) {
+        wrapper.innerHTML = '<span style="font-size:12px;color:var(--border);padding:0 8px;">search (build only)</span>'
+      }
+    }
+  }
+  initSearch()
+</script>
