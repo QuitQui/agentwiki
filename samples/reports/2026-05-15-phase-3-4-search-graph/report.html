@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 3 &amp; 4: Hybrid Search + Knowledge Graph</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #111827; --panel2: #1e293b;
+      --text: #e5e7eb; --muted: #94a3b8; --accent: #38bdf8;
+      --accent2: #a78bfa; --ok: #34d399; --warn: #fbbf24;
+      --err: #f87171; --border: #334155; --code: #020617;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0, transparent 36%),
+                  radial-gradient(circle at top right, #581c87 0, transparent 30%),
+                  var(--bg);
+      color: var(--text); line-height: 1.65;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 28px 80px; }
+    .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+    h1 { font-size: clamp(28px, 4vw, 48px); margin: 10px 0 6px; letter-spacing: -0.04em; }
+    h2 { font-size: 22px; margin-top: 36px; border-bottom: 1px solid var(--border); padding-bottom: 6px; letter-spacing: -0.02em; }
+    h3 { font-size: 17px; color: #f8fafc; margin-top: 22px; }
+    .meta { color: var(--muted); font-size: 14px; display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 9px; background: rgba(56,189,248,.15); border: 1px solid rgba(56,189,248,.3); color: #7dd3fc; margin: 3px 3px 3px 0; }
+    .badge.green { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3); color: #6ee7b7; }
+    .badge.purple { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.3); color: #c4b5fd; }
+    .card { background: linear-gradient(180deg, rgba(30,41,59,.9), rgba(15,23,42,.9)); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+    .decision { border-left: 4px solid var(--ok); background: rgba(16,185,129,.08); padding: 14px 16px; border-radius: 10px; margin: 14px 0; }
+    .warning { border-left: 4px solid var(--warn); background: rgba(251,191,36,.08); padding: 14px 16px; border-radius: 10px; margin: 14px 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    pre { background: var(--code); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font-size: 13px; color: #dbeafe; }
+    code { font-size: .9em; color: #bfdbfe; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 10px 13px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: rgba(56,189,248,.1); color: #e0f2fe; }
+    td { color: #d1d5db; }
+    tr:last-child td { border-bottom: 0; }
+    ul, ol { color: var(--text); }
+    li { margin: 5px 0; }
+    footer { color: var(--muted); border-top: 1px solid var(--border); padding-top: 22px; margin-top: 50px; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<article
+  data-node-id="report:phase-3-4-search-graph"
+  data-node-type="agent_report"
+  data-agent="claude-code"
+  data-commit="b4aab39"
+>
+
+<header>
+  <div class="eyebrow">Agent Report · claude-code · 2026-05-15</div>
+  <h1>Phase 3 &amp; 4: Hybrid Search + Knowledge Graph</h1>
+  <div class="meta">
+    <span>📅 <time datetime="2026-05-15">May 15, 2026</time></span>
+    <span>🔀 branch: <code>feat/phase-4-graph</code></span>
+    <span>🔖 commit: <code>b4aab39</code></span>
+  </div>
+  <div style="margin-top:14px">
+    <span class="badge">search</span>
+    <span class="badge purple">kuzu</span>
+    <span class="badge green">lancedb</span>
+    <span class="badge">pagefind</span>
+    <span class="badge">tests</span>
+  </div>
+</header>
+
+<section data-section-type="summary">
+  <h2>Summary</h2>
+  <div class="card">
+    <p>
+      This session implemented <strong>Phase 3</strong> (hybrid search: Pagefind keyword + TF-IDF/LanceDB
+      vector similarity) and <strong>Phase 4</strong> (Kuzu knowledge graph) for AgentWiki. It also addressed
+      Sourcery AI code review feedback on the Phase 3 PR, added a pytest suite covering both phases, and
+      created this report.
+    </p>
+    <p>
+      The compiler pipeline now ends with two additional steps: <code>build_search_index()</code> computes
+      TF-IDF cosine similarity and writes <code>dist/similar.json</code> + <code>dist/lance/</code>;
+      <code>build_graph()</code> builds a Kuzu embedded DB and exports <code>dist/neighbors.json</code>
+      and <code>dist/graph_stats.json</code>. The site exposes both through new UI sections and a
+      dedicated <code>/graph</code> page.
+    </p>
+  </div>
+</section>
+
+<section data-section-type="decisions">
+  <h2>Key Decisions</h2>
+
+  <div class="decision">
+    <strong>TF-IDF kept sparse until LanceDB write.</strong> Sourcery flagged that
+    <code>.toarray()</code> before <code>cosine_similarity()</code> forces a dense O(n²·d) matrix.
+    Fixed by passing the sparse matrix to <code>cosine_similarity()</code> and only densifying
+    row-by-row when writing vectors to LanceDB.
+  </div>
+
+  <div class="decision">
+    <strong>Centralized <code>dist/</code> path via <code>AGENTWIKI_DIST_DIR</code> env var.</strong>
+    The Phase 3 PR hard-coded the path to <code>dist/</code> in the Astro page, diverging from the
+    compiler's <code>--output-dir</code> flag. Resolved by extracting <code>similar.ts</code> and
+    <code>graph.ts</code> helper modules that read <code>AGENTWIKI_DIST_DIR</code> (falling back to
+    the repo-root <code>dist/</code>) and cache the JSON at module level — matching the pattern
+    already established in <code>site/src/lib/data.ts</code>.
+  </div>
+
+  <div class="decision">
+    <strong>Two separate Cypher queries for 1-hop / 2-hop neighbors.</strong> Kuzu's variable-length
+    path syntax (<code>*1..2</code>) doesn't support <code>min(length(e))</code> aggregation directly.
+    Using two discrete <code>MATCH</code> queries and merging in Python is simpler and more explicit.
+  </div>
+
+  <div class="decision">
+    <strong>Canvas force graph with no npm dependencies.</strong> The <code>/graph</code> page uses a
+    plain JS force simulation on a <code>&lt;canvas&gt;</code> element passed data via Astro's
+    <code>define:vars</code>. This avoids adding D3 or other visualization libraries to the bundle.
+  </div>
+</section>
+
+<section data-section-type="changes">
+  <h2>Changes</h2>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Phase</th><th>What</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>compiler/search.py</code></td><td>3</td><td>TF-IDF sparse fix; <code>list_tables()</code> deprecation fix</td></tr>
+      <tr><td><code>compiler/graph.py</code></td><td>4 (new)</td><td>Kuzu DB build; <code>neighbors.json</code>; <code>graph_stats.json</code></td></tr>
+      <tr><td><code>compiler/compiler.py</code></td><td>4</td><td>Wire <code>build_graph()</code>; <code>graph=</code> flag</td></tr>
+      <tr><td><code>compiler/cli.py</code></td><td>4</td><td><code>--no-graph</code> flag; Phase 4 banner; updated output line</td></tr>
+      <tr><td><code>site/src/lib/similar.ts</code></td><td>3 (new)</td><td>Sourcer fix: centralized <code>similar.json</code> path + module-level cache</td></tr>
+      <tr><td><code>site/src/lib/graph.ts</code></td><td>4 (new)</td><td>Cached loader for <code>neighbors.json</code> + <code>graph_stats.json</code></td></tr>
+      <tr><td><code>site/src/pages/nodes/[id].astro</code></td><td>3 + 4</td><td>Graph neighborhood section; use helper modules</td></tr>
+      <tr><td><code>site/src/pages/graph.astro</code></td><td>4 (new)</td><td><code>/graph</code> page: stats bar, canvas force graph, degree table</td></tr>
+      <tr><td><code>site/src/layouts/Base.astro</code></td><td>4</td><td>Graph nav link</td></tr>
+      <tr><td><code>tests/test_search.py</code></td><td>3 (new)</td><td>6 pytest tests for <code>build_search_index()</code></td></tr>
+      <tr><td><code>tests/test_graph.py</code></td><td>4 (new)</td><td>7 pytest tests for <code>build_graph()</code></td></tr>
+      <tr><td><code>pyproject.toml</code></td><td>4</td><td>Add <code>kuzu&gt;=0.11.3</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section data-section-type="test_results">
+  <h2>Test Results</h2>
+  <div class="card">
+    <p><strong>12 / 12 tests passing</strong> — <code>uv run pytest tests/ -v</code></p>
+    <ul>
+      <li><code>test_graph.py</code>: 7 tests — outputs created, neighbor hops, degree counts, external target filtering, empty input, idempotency</li>
+      <li><code>test_search.py</code>: 5 tests — outputs created, similar.json structure, self-exclusion, single-node skip, top-k cap</li>
+    </ul>
+  </div>
+</section>
+
+<section data-section-type="follow_up">
+  <h2>Follow-up</h2>
+  <ul>
+    <li>Phase 3 PR (#1) still needs GitHub App write access to merge — grant <em>Contents: Read &amp; write</em> in GitHub → Settings → Applications → Claude.</li>
+    <li>Phase 5: tree-sitter codebase integration (<code>CodeFile</code> / <code>Function</code> / <code>Class</code> node types).</li>
+    <li>The <code>/graph</code> force simulation runs 300 frames and stops — consider making it interactive (drag nodes, highlight edges on hover).</li>
+  </ul>
+</section>
+
+</article>
+
+<footer>
+  Generated by claude-code · model claude-sonnet-4-6 · AgentWiki Phase 4
+</footer>
+</div>
+</body>
+</html>

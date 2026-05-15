@@ -54,7 +54,7 @@ def build_search_index(nodes: list[KnowledgeNode], output_dir: Path) -> None:
         {"id": nid, "title": titles[nid], "vector": vec.tolist()}
         for nid, vec in zip(ids, tfidf_matrix)
     ]
-    if "nodes" in db.table_names():
+    if "nodes" in db.list_tables():
         db.drop_table("nodes")
     db.create_table("nodes", data=records)
 

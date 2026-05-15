@@ -20,6 +20,7 @@ def build_graph(nodes: list[KnowledgeNode], output_dir: Path) -> None:
         return
 
     kuzu_dir = output_dir / "kuzu"
+    output_dir.mkdir(parents=True, exist_ok=True)
     if kuzu_dir.exists():
         shutil.rmtree(kuzu_dir) if kuzu_dir.is_dir() else kuzu_dir.unlink()
     db = kuzu.Database(str(kuzu_dir))
