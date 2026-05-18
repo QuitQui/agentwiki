@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>StrudelAI MVP Ship + AgentWiki Pipeline Fix</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c8fff;
+      --accent2: #a78bfa;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; padding: 2rem 1rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    article { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    header { padding: 2rem; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, #1a1d27 0%, #22263a 100%); }
+    .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+    h1 { font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .meta span { display: flex; align-items: center; gap: 0.3rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .badge { font-size: 0.72rem; font-weight: 500; padding: 0.25rem 0.65rem; border-radius: 9999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    .badge.file { border-color: #6c8fff44; color: var(--accent); }
+    .badge.module { border-color: #a78bfa44; color: var(--accent2); }
+    section { padding: 1.75rem 2rem; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+    h2 { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.25rem; }
+    p { color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.9rem; }
+    p:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.5rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; background: var(--surface2); color: var(--text-dim); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 0.55rem 0.75rem; border-bottom: 1px solid #1e2235; color: var(--text-muted); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td code, th code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.78rem; background: var(--surface2); padding: 0.1rem 0.35rem; border-radius: 4px; color: var(--text); }
+    .pass { color: var(--green); font-weight: 600; }
+    .note { color: var(--yellow); }
+    ul { list-style: none; padding: 0; }
+    ul li { padding: 0.35rem 0; padding-left: 1rem; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+    ul li::before { content: "—"; position: absolute; left: 0; color: var(--text-dim); }
+    .callout { background: var(--surface2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 0.85rem 1rem; margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted); }
+    .callout.decision { border-color: var(--accent2); }
+    .callout.warning { border-color: var(--yellow); }
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.82rem; background: var(--surface2); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--text); }
+    .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem; }
+    .impact-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+    .impact-card h3 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); margin-bottom: 0.5rem; }
+    .impact-card p { font-size: 0.85rem; margin-bottom: 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+<article
+  data-node-id="report:strudel-mvp-pipeline-wrap"
+  data-node-type="agent_report"
+  data-agent="claude-code"
+  data-commit="a60d277"
+>
+  <header>
+    <div class="eyebrow">Agent Report · claude-code</div>
+    <h1>StrudelAI MVP Ship + AgentWiki Pipeline Fix</h1>
+    <div class="meta">
+      <span>📅 <time datetime="2026-05-18">May 18, 2026</time></span>
+      <span>🌿 claude/check-phase-3-merge-ZT9VC</span>
+      <span>🔖 a60d277</span>
+      <span>✅ 30/30 tests (StrudelAI)</span>
+      <span>🔧 compile pipeline idempotent</span>
+    </div>
+    <div class="badges">
+      <span class="badge file">compiler/search.py</span>
+      <span class="badge file">strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/manifest.json</span>
+      <span class="badge file">strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/chunks.jsonl</span>
+      <span class="badge file">memory/project_strudel_ai.md</span>
+      <span class="badge file">memory/MEMORY.md</span>
+      <span class="badge module">LanceDB</span>
+      <span class="badge module">AgentWiki compiler</span>
+    </div>
+  </header>
+
+  <section data-section-type="summary">
+    <h2>Summary</h2>
+    <p>This session had two goals: close out the StrudelAI MVP report (the previous context window ran out mid-execution of the <code>/report</code> skill, leaving <code>manifest.json</code> and <code>chunks.jsonl</code> unwritten) and verify that the AgentWiki compile pipeline could ingest the new report cleanly. Both were accomplished — but the compile revealed a latent bug that would have blocked every future <code>uv run agentwiki compile</code> invocation.</p>
+    <p>The bug was in <code>compiler/search.py</code>: the guard that drops the LanceDB <code>nodes</code> table before recreating it used <code>"nodes" in db.list_tables()</code>, but <code>db.list_tables()</code> returns a <code>ListTablesResult</code> object (not a plain list), so the <code>in</code> check always evaluated to <code>False</code> — the table was never dropped, and <code>create_table</code> raised <code>ValueError: Table 'nodes' already exists</code> on every run after the first. The fix extracts <code>.tables</code> from the result object before the membership test, making the pipeline idempotent.</p>
+    <p>With the pipeline fixed, 6 nodes compiled and the StrudelAI MVP report is now live in the AgentWiki knowledge graph. Session memory was updated to reflect the completed MVP so future conversations start with accurate project state.</p>
+    <div class="callout decision">The <code>list_tables()</code> return type change is a LanceDB API evolution (newer versions wrap the result). The fix uses <code>hasattr(result, "tables")</code> for forward/backward compatibility rather than pinning to a specific LanceDB version.</div>
+  </section>
+
+  <section data-section-type="changes">
+    <h2>Changes</h2>
+    <table>
+      <thead>
+        <tr><th>File</th><th>What changed</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>compiler/search.py</code></td>
+          <td>Fixed <code>db.list_tables()</code> check — extract <code>.tables</code> attribute from <code>ListTablesResult</code> before <code>in</code> membership test; compile now idempotent across multiple runs</td>
+          <td class="pass">modified</td>
+        </tr>
+        <tr>
+          <td><code>strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/manifest.json</code></td>
+          <td>Created AgentWiki manifest for StrudelAI MVP report — id, type, title, agent, source, entities (10 files + 3 modules), links (10 modifies + 3 mentions)</td>
+          <td class="pass">created</td>
+        </tr>
+        <tr>
+          <td><code>strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/chunks.jsonl</code></td>
+          <td>Created search chunks for StrudelAI MVP report — 5 sections (summary, changes, affected-code, evidence, open-questions) as individual JSONL records</td>
+          <td class="pass">created</td>
+        </tr>
+        <tr>
+          <td><code>memory/project_strudel_ai.md</code></td>
+          <td>Rewrote from "implementation not started" to full MVP-complete state — architecture, key files, dev commands, open v0.2 features, how-to-apply guidance</td>
+          <td class="pass">updated</td>
+        </tr>
+        <tr>
+          <td><code>memory/MEMORY.md</code></td>
+          <td>Updated StrudelAI index line to reflect MVP completion (was "research done, not started")</td>
+          <td class="pass">updated</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-section-type="affected-code">
+    <h2>Affected Code</h2>
+    <ul>
+      <li><code>build_search_index(nodes, output_dir)</code> in <code>compiler/search.py</code> — the drop-before-recreate guard now correctly resolves <code>ListTablesResult → list[str]</code> before membership test; previously crashed on every compile after the first</li>
+      <li><code>strudel-ai/reports/.../manifest.json</code> — new file; 13 entity entries (files + modules), 13 link edges (10 modifies + 3 mentions); consumed by AgentWiki compiler to build graph edges</li>
+      <li><code>strudel-ai/reports/.../chunks.jsonl</code> — new file; 5 chunks consumed by Pagefind + LanceDB vector indexer</li>
+      <li><code>memory/project_strudel_ai.md</code> — project memory rewritten; future sessions will load accurate MVP state instead of stale "not started" status</li>
+    </ul>
+  </section>
+
+  <section data-section-type="evidence">
+    <h2>Evidence</h2>
+    <table>
+      <thead>
+        <tr><th>Check</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>uv run agentwiki compile</code> (post-fix)</td><td class="pass">✓ 6 node(s) compiled — dist/nodes/ + dist/index.json + dist/similar.json + dist/lance/ + dist/neighbors.json + dist/graph_stats.json + dist/kuzu/</td></tr>
+        <tr><td>LanceDB idempotency</td><td class="pass">Verified: compile runs twice in succession without error</td></tr>
+        <tr><td>StrudelAI 30/30 tests</td><td class="pass">Carried forward from prior session — all pass, production build clean</td></tr>
+        <tr><td>manifest.json schema</td><td class="pass">id, type, title, created_at, agent, source, entities, links all present</td></tr>
+        <tr><td>Memory update</td><td class="pass">project_strudel_ai.md reflects MVP completion, MEMORY.md index updated</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-section-type="impact">
+    <h2>Impact — What This Means For You</h2>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <h3>StrudelAI is shippable</h3>
+        <p>The full MVP is done: natural-language → live music in the browser, no backend required. Run <code>npm run dev</code> in <code>strudel-ai/</code>, enter your Anthropic API key, and describe music to hear it immediately.</p>
+      </div>
+      <div class="impact-card">
+        <h3>AgentWiki compile is stable</h3>
+        <p>The <code>uv run agentwiki compile</code> command now works reliably on every run — not just the first. Every future report you generate will be ingested without manual intervention.</p>
+      </div>
+      <div class="impact-card">
+        <h3>Session memory is accurate</h3>
+        <p>Future Claude Code sessions will start knowing the StrudelAI MVP is complete — no risk of re-implementing finished work or missing the v0.2 context.</p>
+      </div>
+      <div class="impact-card">
+        <h3>Knowledge graph has StrudelAI</h3>
+        <p>The MVP work is now a node in AgentWiki with full entity and link edges — queryable via the graph API and surfaced in similar-node recommendations.</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-section-type="open-questions">
+    <h2>What's Next</h2>
+    <ul>
+      <li><strong>StrudelAI v0.2</strong> — multi-voice stacking, pattern mutation ("make it faster"), teach mode, visualizer; design spec is at <code>strudel-ai/docs/superpowers/specs/2026-05-14-strudel-ai-design.md</code></li>
+      <li><strong>StrudelAI E2E tests</strong> — Playwright tests for audio playback; currently no browser-automation coverage of the golden path</li>
+      <li><strong>AgentWiki Phase 5</strong> — codebase integration via tree-sitter (parse source files into the knowledge graph as <code>codefile:</code> nodes)</li>
+      <li><strong>AgentWiki Phase 6</strong> — Agent API: REST → MCP server so Claude Code can query the knowledge graph as a tool</li>
+      <li><strong>LanceDB <code>list_tables()</code> root cause</strong> — the fix works, but worth checking if this was a version bump in <code>uv.lock</code> that changed the return type; pinning or adding a regression test would prevent recurrence</li>
+    </ul>
+  </section>
+
+</article>
+</div>
+</body>
+</html>

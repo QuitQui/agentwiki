@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auto-Discovery, Patch Apply &amp; PR Merge</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c8fff;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #f87171;
+      --text: #e2e8f0;
+      --text-muted: #8892b0;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 15px; line-height: 1.7; }
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+    article { display: flex; flex-direction: column; gap: 32px; }
+    header { border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+    .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    h1 { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .meta span { display: flex; align-items: center; gap: 6px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .badge.file { color: var(--accent); border-color: var(--accent); }
+    .badge.module { color: var(--accent2); border-color: var(--accent2); }
+    section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    section h2 { font-size: 1rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+    p { color: var(--text); margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; color: var(--accent2); }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 6px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .tag.green { background: #14532d; color: var(--green); }
+    .tag.yellow { background: #422006; color: var(--yellow); }
+    .tag.blue { background: #1e3a5f; color: var(--accent); }
+    .tag.purple { background: #2e1065; color: var(--accent2); }
+    .callout { border-radius: var(--radius); padding: 14px 18px; margin-bottom: 16px; border-left: 4px solid; }
+    .callout.info { background: #1e3a5f22; border-color: var(--accent); }
+    .callout.success { background: #14532d22; border-color: var(--green); }
+    .callout.warning { background: #42200622; border-color: var(--yellow); }
+  </style>
+</head>
+<body>
+<div class="container">
+<article
+  data-node-id="report:auto-discovery-patch-merge"
+  data-node-type="agent_report"
+  data-agent="claude-code"
+  data-commit="a60d277"
+>
+  <header>
+    <div class="eyebrow">Agent Report · claude-code</div>
+    <h1>Auto-Discovery, Patch Apply &amp; PR Merge</h1>
+    <div class="meta">
+      <span>📅 <time datetime="2026-05-15">May 15, 2026</time></span>
+      <span>🌿 claude/check-phase-3-merge-ZT9VC</span>
+      <span>🔖 a60d277</span>
+    </div>
+    <div class="badges">
+      <span class="badge module">compiler.compiler</span>
+      <span class="badge module">compiler.parser.html_report</span>
+      <span class="badge module">compiler.cli</span>
+      <span class="badge file">tests/test_discover_nodes.py</span>
+      <span class="badge file">samples/reports/agent-run-001/manifest.json</span>
+      <span class="badge file">CLAUDE.md</span>
+    </div>
+  </header>
+
+  <section data-section-type="summary">
+    <h2>Summary</h2>
+    <p>
+      This session had two parallel tracks. The first completed the <strong>recursive auto-discovery</strong> feature
+      started in the prior session: the compiler can now scan any external directory tree for AgentWiki-compatible
+      nodes (report dirs with manifest+HTML, standalone HTML files, and Markdown docs) without requiring files to be
+      manually copied into <code>samples/</code>. A <code>--scan</code> CLI flag wires this into all three commands.
+      The <code>agentwiki_survey_final_plan.html</code> in the workspace <code>reports/</code> directory — previously
+      undetected — is now ingested as <code>report:agent-run-001</code> with 11 sections via the new
+      <code>html_file</code> manifest field and h2-fallback section extraction.
+    </p>
+    <p>
+      The second track applied <strong>5 patches from Claude web</strong> (Phase 3 re-implementation, Phase 4 Kuzu
+      knowledge graph, test suite, security hardening, sparse TF-IDF fix) onto a clean branch from
+      <code>main</code>. All patches applied without conflicts. Both existing PRs (#1 Phase 3 search, #2 GitHub
+      Actions) were merged into <code>main</code>, and a new PR #3 was opened for the patch branch.
+    </p>
+    <p>
+      Key decisions: branching the patches from <code>main</code> rather than <code>feat/phase-3-search</code>
+      (patch 0001 re-implements Phase 3 from scratch); stashing the local <code>Search.astro</code> diff before
+      branching to keep a clean apply surface; merging PR #2 (GitHub Actions) before PR #1 to avoid rebase churn.
+    </p>
+  </section>
+
+  <section data-section-type="changes">
+    <h2>Changes</h2>
+    <table>
+      <thead>
+        <tr><th>File</th><th>What changed</th><th>Track</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>compiler/compiler.py</code></td>
+          <td>Added <code>discover_nodes()</code>, <code>_in_skip_dir()</code>, skip constants; updated <code>run()</code> to accept <code>scan_roots</code></td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>compiler/parser/html_report.py</code></td>
+          <td>Added <code>html_file</code> manifest field support, h2 section fallback in <code>parse_report_dir</code>, new <code>parse_standalone_html()</code></td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>compiler/cli.py</code></td>
+          <td>Added <code>--scan/-s</code> (repeatable) option on <code>compile</code>, <code>dev</code>, <code>build</code> commands</td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>tests/test_discover_nodes.py</code></td>
+          <td>New: 17 pytest tests covering all discovery behaviors (tmp_path fixtures)</td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>tests/__init__.py</code></td>
+          <td>New: empty package marker</td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>reports/agent-run-001/manifest.json</code></td>
+          <td>New: manifest wiring up <code>agentwiki_survey_final_plan.html</code> via <code>html_file</code> field</td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>CLAUDE.md</code> (workspace)</td>
+          <td>Added testing mandate + end-of-session memory checklist</td>
+          <td><span class="tag blue">auto-discovery</span></td>
+        </tr>
+        <tr>
+          <td><code>compiler/search.py</code></td>
+          <td>Phase 3: TF-IDF sparse fix applied (patch 0005)</td>
+          <td><span class="tag purple">patches</span></td>
+        </tr>
+        <tr>
+          <td><code>compiler/graph.py</code></td>
+          <td>New: Phase 4 Kuzu graph builder (patch 0002)</td>
+          <td><span class="tag purple">patches</span></td>
+        </tr>
+        <tr>
+          <td><code>site/src/lib/sanitize.ts</code></td>
+          <td>New: HTML sanitization util (patch 0004)</td>
+          <td><span class="tag purple">patches</span></td>
+        </tr>
+        <tr>
+          <td><code>site/src/pages/graph.astro</code></td>
+          <td>New: graph visualization page (patch 0002)</td>
+          <td><span class="tag purple">patches</span></td>
+        </tr>
+        <tr>
+          <td><code>tests/test_graph.py</code>, <code>tests/test_search.py</code></td>
+          <td>New: 111 + 80 lines of pytest coverage (patch 0003)</td>
+          <td><span class="tag purple">patches</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-section-type="affected-code">
+    <h2>Affected Code</h2>
+    <ul>
+      <li><code>discover_nodes(root, seen_ids)</code> — new function; rglob for manifest.json, *.md, *.html; skip logic; deduplication via seen_ids + seen_html_paths</li>
+      <li><code>_in_skip_dir(path)</code> — helper; checks path parts against <code>_SKIP_DIRS</code> frozenset</li>
+      <li><code>parse_report_dir()</code> — extended: reads <code>html_file</code> manifest field, resolves relative path; h2-based section fallback when no <code>&lt;article&gt;</code> element</li>
+      <li><code>parse_standalone_html()</code> — new; two-mode parser: structured (<code>data-node-id</code> article) and unstructured (h1/title + h2 sections, derives id from filename)</li>
+      <li><code>run()</code> — extended: accepts <code>scan_roots: list[Path] | None</code>; calls <code>discover_nodes()</code> per root</li>
+      <li>CLI commands <code>compile</code>, <code>dev</code>, <code>build_cmd</code> — each gains <code>--scan/-s</code> option with existence validation</li>
+      <li><code>compiler/graph.py</code> — new module: Phase 4 Kuzu graph builder (patch)</li>
+      <li><code>site/src/lib/sanitize.ts</code> — new module: HTML sanitization (patch)</li>
+      <li><code>site/src/pages/graph.astro</code> — new page: graph visualization (patch)</li>
+    </ul>
+  </section>
+
+  <section data-section-type="evidence">
+    <h2>Evidence</h2>
+    <div class="callout success">
+      <strong>Auto-discovery tests:</strong> 17/17 passed (<code>uv run pytest tests/test_discover_nodes.py</code>)
+    </div>
+    <div class="callout success">
+      <strong>Patch branch tests:</strong> 12/12 passed (<code>uv run pytest tests/</code> on <code>claude/check-phase-3-merge-ZT9VC</code>)
+    </div>
+    <div class="callout success">
+      <strong>Compile output:</strong> 9 nodes — <code>report:agent-run-001</code> now shows 11 sections (h2 fallback working)
+    </div>
+    <div class="callout info">
+      <strong>PRs:</strong> #1 (feat/phase-3-search) and #2 (GitHub Actions) merged into main. PR #3 opened for patch branch.
+    </div>
+    <table>
+      <thead><tr><th>Check</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>test_discover_nodes.py (17 tests)</td><td><span class="tag green">PASS</span></td></tr>
+        <tr><td>test_search.py + test_graph.py (12 tests on patch branch)</td><td><span class="tag green">PASS</span></td></tr>
+        <tr><td>Compile: 9 nodes, report:agent-run-001 sections=11</td><td><span class="tag green">PASS</span></td></tr>
+        <tr><td>git am --3way (5 patches, 0 conflicts)</td><td><span class="tag green">PASS</span></td></tr>
+        <tr><td>PR #1 merged</td><td><span class="tag green">DONE</span></td></tr>
+        <tr><td>PR #2 merged</td><td><span class="tag green">DONE</span></td></tr>
+        <tr><td>PR #3 opened</td><td><span class="tag green">DONE</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-section-type="open-questions">
+    <h2>Open Questions</h2>
+    <ul>
+      <li>PR #3 (<code>claude/check-phase-3-merge-ZT9VC</code>) needs review — it re-implements Phase 3 from scratch on top of main; reconciling with the already-merged <code>feat/phase-3-search</code> commits may require a rebase or cherry-pick strategy</li>
+      <li>The <code>test_discover_nodes.py</code> (17 tests) from auto-discovery work lives on <code>feat/phase-3-search</code> but not on the patch branch — needs to be ported into PR #3 or merged separately</li>
+      <li>MCPs (GitHub, Context7, Sequential Thinking) still need re-adding to <code>~/.claude.json</code> — system reverted previous config</li>
+      <li>StrudelAI implementation not started — design spec ready at <code>strudel-ai/docs/superpowers/specs/2026-05-14-strudel-ai-design.md</code></li>
+      <li>AgentWiki Phase 5 (tree-sitter codebase integration) and Phase 6 (Agent API/MCP) not yet planned</li>
+    </ul>
+  </section>
+
+</article>
+</div>
+</body>
+</html>

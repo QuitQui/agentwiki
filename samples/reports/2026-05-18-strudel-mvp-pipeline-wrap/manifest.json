@@ -1,0 +1,32 @@
+{
+  "id": "report:strudel-mvp-pipeline-wrap",
+  "type": "agent_report",
+  "title": "StrudelAI MVP Ship + AgentWiki Pipeline Fix",
+  "created_at": "2026-05-18T00:00:00+00:00",
+  "agent": {
+    "name": "claude-code",
+    "model": "claude-sonnet-4-6",
+    "run_id": "strudel-mvp-pipeline-wrap"
+  },
+  "source": {
+    "git_commit": "a60d277",
+    "branch": "claude/check-phase-3-merge-ZT9VC"
+  },
+  "entities": [
+    { "type": "file", "path": "compiler/search.py", "name": "search" },
+    { "type": "file", "path": "strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/manifest.json", "name": "strudel-ai-mvp-manifest" },
+    { "type": "file", "path": "strudel-ai/reports/2026-05-18-strudel-ai-mvp-complete/chunks.jsonl", "name": "strudel-ai-mvp-chunks" },
+    { "type": "file", "path": "memory/project_strudel_ai.md", "name": "project-strudel-ai-memory" },
+    { "type": "file", "path": "memory/MEMORY.md", "name": "memory-index" },
+    { "type": "module", "name": "LanceDB" },
+    { "type": "module", "name": "AgentWiki compiler" }
+  ],
+  "links": [
+    { "type": "modifies", "target": "codefile:compiler/search.py" },
+    { "type": "modifies", "target": "codefile:memory/project_strudel_ai.md" },
+    { "type": "modifies", "target": "codefile:memory/MEMORY.md" },
+    { "type": "mentions", "target": "report:strudel-ai-mvp-complete" },
+    { "type": "mentions", "target": "concept:lancedb-vector-index" },
+    { "type": "mentions", "target": "concept:agentwiki-compile-pipeline" }
+  ]
+}

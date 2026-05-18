@@ -1,0 +1,36 @@
+{
+  "id": "report:auto-discovery-patch-merge",
+  "type": "agent_report",
+  "title": "Auto-Discovery, Patch Apply & PR Merge",
+  "created_at": "2026-05-15T00:00:00Z",
+  "agent": {
+    "name": "claude-code",
+    "model": "claude-sonnet-4-6",
+    "run_id": "auto-discovery-patch-merge"
+  },
+  "source": {
+    "git_commit": "a60d277",
+    "branch": "claude/check-phase-3-merge-ZT9VC"
+  },
+  "entities": [
+    { "type": "module", "name": "compiler.compiler" },
+    { "type": "module", "name": "compiler.parser.html_report" },
+    { "type": "module", "name": "compiler.cli" },
+    { "type": "file", "path": "tests/test_discover_nodes.py", "name": "test_discover_nodes" },
+    { "type": "file", "path": "tests/test_search.py", "name": "test_search" },
+    { "type": "file", "path": "tests/test_graph.py", "name": "test_graph" },
+    { "type": "file", "path": "compiler/graph.py", "name": "graph" },
+    { "type": "file", "path": "site/src/lib/sanitize.ts", "name": "sanitize" },
+    { "type": "file", "path": "site/src/pages/graph.astro", "name": "graph.astro" }
+  ],
+  "links": [
+    { "type": "modifies", "target": "codefile:compiler/compiler.py" },
+    { "type": "modifies", "target": "codefile:compiler/parser/html_report.py" },
+    { "type": "modifies", "target": "codefile:compiler/cli.py" },
+    { "type": "modifies", "target": "codefile:compiler/search.py" },
+    { "type": "modifies", "target": "codefile:CLAUDE.md" },
+    { "type": "mentions", "target": "concept:auto-discovery" },
+    { "type": "mentions", "target": "concept:kuzu-graph" },
+    { "type": "mentions", "target": "concept:hybrid-search" }
+  ]
+}

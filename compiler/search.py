@@ -54,7 +54,9 @@ def build_search_index(nodes: list[KnowledgeNode], output_dir: Path) -> None:
         {"id": nid, "title": titles[nid], "vector": tfidf_sparse[i].toarray().astype(np.float32)[0].tolist()}
         for i, nid in enumerate(ids)
     ]
-    if "nodes" in db.list_tables():
+    existing = db.list_tables()
+    table_names = existing.tables if hasattr(existing, "tables") else list(existing)
+    if "nodes" in table_names:
         db.drop_table("nodes")
     db.create_table("nodes", data=records)
 
