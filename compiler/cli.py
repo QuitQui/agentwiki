@@ -49,16 +49,21 @@ def main() -> None:
 @click.option("--output-dir", "-o", default="dist", show_default=True)
 @click.option("--no-embed", is_flag=True, default=False, help="Skip vector index build.")
 @click.option("--no-graph", is_flag=True, default=False, help="Skip Kuzu graph build.")
-def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool) -> None:
+@click.option("--scan", "-s", multiple=True, help="Extra directories to scan for reports/ (may repeat).")
+def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool, scan: tuple[str, ...]) -> None:
     """Compile inputs to dist/: per-node JSON + index.json + search index + graph."""
     root = Path(input_dir)
     out = Path(output_dir)
+    scan_dirs = [Path(s) for s in scan]
 
     if not root.exists():
         console.print(f"[red]Input directory not found:[/red] {root}")
         raise SystemExit(1)
 
     console.rule("[bold cyan]AgentWiki compiler — Phase 4[/bold cyan]")
+
+    if scan_dirs:
+        console.print(f"[dim]Extra scan dirs:[/dim] {', '.join(str(s) for s in scan_dirs)}")
 
     # --- validate manifests before compiling ---
     manifest_schema = _load_schema("manifest.schema.json")
@@ -69,7 +74,7 @@ def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool) -> 
         raise SystemExit(1)
 
     # --- run the full pipeline ---
-    nodes = core.run(root, out, embed=not no_embed, graph=not no_graph)
+    nodes = core.run(root, out, embed=not no_embed, graph=not no_graph, scan_dirs=scan_dirs)
 
     # --- report ---
     table = Table(box=box.SIMPLE_HEAVY, show_lines=False)
@@ -103,7 +108,8 @@ def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool) -> 
 @click.option("--input-dir", "-i", default="samples", show_default=True)
 @click.option("--output-dir", "-o", default="dist", show_default=True)
 @click.option("--port", "-p", default=4321, show_default=True)
-def dev(input_dir: str, output_dir: str, port: int) -> None:
+@click.option("--scan", "-s", multiple=True, help="Extra directories to scan for reports/ (may repeat).")
+def dev(input_dir: str, output_dir: str, port: int, scan: tuple[str, ...]) -> None:
     """Compile inputs then start the Astro dev server."""
     repo_root = Path(__file__).parent.parent
     site_dir = repo_root / "site"
@@ -114,7 +120,7 @@ def dev(input_dir: str, output_dir: str, port: int) -> None:
 
     # compile first
     ctx = click.get_current_context()
-    ctx.invoke(compile, input_dir=input_dir, output_dir=output_dir)
+    ctx.invoke(compile, input_dir=input_dir, output_dir=output_dir, scan=scan)
 
     console.print(f"\n[bold cyan]Starting Astro dev server[/bold cyan] on port {port}…\n")
     subprocess.run(
@@ -127,7 +133,8 @@ def dev(input_dir: str, output_dir: str, port: int) -> None:
 @main.command(name="build")
 @click.option("--input-dir", "-i", default="samples", show_default=True)
 @click.option("--output-dir", "-o", default="dist", show_default=True)
-def build_cmd(input_dir: str, output_dir: str) -> None:
+@click.option("--scan", "-s", multiple=True, help="Extra directories to scan for reports/ (may repeat).")
+def build_cmd(input_dir: str, output_dir: str, scan: tuple[str, ...]) -> None:
     """Compile + Astro build + Pagefind index → site/dist/ (production)."""
     repo_root = Path(__file__).parent.parent
     site_dir = repo_root / "site"
@@ -138,7 +145,7 @@ def build_cmd(input_dir: str, output_dir: str) -> None:
 
     # 1. compile
     ctx = click.get_current_context()
-    ctx.invoke(compile, input_dir=input_dir, output_dir=output_dir, no_embed=False)
+    ctx.invoke(compile, input_dir=input_dir, output_dir=output_dir, no_embed=False, scan=scan)
 
     # 2. astro build
     console.rule("[bold cyan]Astro build[/bold cyan]")

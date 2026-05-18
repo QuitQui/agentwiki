@@ -16,15 +16,43 @@ def _safe_id_to_filename(node_id: str) -> str:
     return node_id.replace(":", "__") + ".json"
 
 
-def compile_inputs(input_dir: Path) -> list[KnowledgeNode]:
+def _collect_report_dirs(reports_dir: Path) -> list[Path]:
+    """Return sorted list of subdirs inside reports_dir that contain a report.html."""
+    if not reports_dir.exists():
+        return []
+    return sorted(d for d in reports_dir.iterdir() if d.is_dir() and (d / "report.html").exists())
+
+
+def _extra_reports_dirs(scan_dirs: list[Path]) -> list[Path]:
+    """For each scan path, yield its reports/ subdir and also depth-1 children's reports/ subdirs."""
+    seen: set[Path] = set()
+    result: list[Path] = []
+    for scan in scan_dirs:
+        candidates = [scan / "reports"] + [child / "reports" for child in sorted(scan.iterdir()) if child.is_dir()]
+        for candidate in candidates:
+            resolved = candidate.resolve()
+            if resolved not in seen and candidate.exists():
+                seen.add(resolved)
+                result.append(candidate)
+    return result
+
+
+def compile_inputs(input_dir: Path, scan_dirs: list[Path] | None = None) -> list[KnowledgeNode]:
     """Discover and parse all inputs under input_dir. Returns raw nodes (no backlinks yet)."""
     nodes: list[KnowledgeNode] = []
+    seen_report_dirs: set[Path] = set()
 
-    reports_dir = input_dir / "reports"
-    if reports_dir.exists():
-        for d in sorted(reports_dir.iterdir()):
-            if d.is_dir() and (d / "report.html").exists():
-                nodes.append(parse_report_dir(d))
+    primary_reports = input_dir / "reports"
+    seen_report_dirs.add(primary_reports.resolve())
+    for d in _collect_report_dirs(primary_reports):
+        nodes.append(parse_report_dir(d))
+
+    for extra_reports in _extra_reports_dirs(scan_dirs or []):
+        if extra_reports.resolve() in seen_report_dirs:
+            continue
+        seen_report_dirs.add(extra_reports.resolve())
+        for d in _collect_report_dirs(extra_reports):
+            nodes.append(parse_report_dir(d))
 
     docs_dir = input_dir / "docs"
     if docs_dir.exists():
@@ -91,9 +119,10 @@ def run(
     output_dir: Path,
     embed: bool = True,
     graph: bool = True,
+    scan_dirs: list[Path] | None = None,
 ) -> list[KnowledgeNode]:
     """Full pipeline: parse → backlinks → emit → search index → graph. Returns the final node list."""
-    nodes = compile_inputs(input_dir)
+    nodes = compile_inputs(input_dir, scan_dirs=scan_dirs)
     nodes = resolve_backlinks(nodes)
     emit(nodes, output_dir)
     if embed:
