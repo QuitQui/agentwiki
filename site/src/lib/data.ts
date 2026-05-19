@@ -77,9 +77,9 @@ export function getNode(slug: string): KnowledgeNode {
   return JSON.parse(readFileSync(resolved, 'utf-8'))
 }
 
-/** node id → URL slug (replace : with __) */
+/** node id → URL slug (safe for filenames and URL path segments) */
 export function idToSlug(id: string): string {
-  return id.replace(/:/g, '__')
+  return id.replace(/:/g, '__').replace(/\//g, '-')
 }
 
 /** URL slug → node id */
@@ -99,4 +99,18 @@ export const NODE_TYPE_COLOR: Record<string, string> = {
 
 export function nodeColor(type: string): string {
   return NODE_TYPE_COLOR[type] ?? '#94a3b8'
+}
+
+export function getCodeSymbols(nodeId: string): KnowledgeNode[] {
+  const node = getNode(idToSlug(nodeId))
+  const codefileIds = (node.backlinks ?? [])
+    .filter(e => e.source_id.startsWith('codefile:') && e.edge_type === 'related_to')
+    .map(e => e.source_id)
+  if (codefileIds.length === 0) return []
+  const filePaths = new Set(codefileIds.map(id => id.slice('codefile:'.length)))
+  return getAllNodes().filter(n => {
+    if (n.type !== 'Function' && n.type !== 'Class') return false
+    const m = n.id.match(/^codesymbol:(.+):[^:]+$/)
+    return m != null && filePaths.has(m[1])
+  })
 }

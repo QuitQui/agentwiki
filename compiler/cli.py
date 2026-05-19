@@ -13,6 +13,9 @@ from rich.table import Table
 from rich import box
 
 from compiler import compiler as core
+from compiler.api import app as _api_app, set_dist_dir
+from compiler.config import load_config, scan_dirs_from_config
+from compiler.mcp_server import serve_stdio
 
 console = Console()
 
@@ -39,6 +42,17 @@ def _validate_manifests(input_dir: Path, schema: dict) -> list[str]:
     return errors
 
 
+def _merge_scan_dirs(cli_scan: tuple[str, ...]) -> list[Path]:
+    """Merge CLI --scan args with agentwiki.toml scan dirs (CLI wins on duplicates)."""
+    scan_dirs = [Path(s) for s in cli_scan]
+    seen = {d.resolve() for d in scan_dirs}
+    for d in scan_dirs_from_config(load_config()):
+        if d.resolve() not in seen:
+            scan_dirs.append(d)
+            seen.add(d.resolve())
+    return scan_dirs
+
+
 @click.group()
 def main() -> None:
     """AgentWiki — project memory compiler."""
@@ -49,12 +63,13 @@ def main() -> None:
 @click.option("--output-dir", "-o", default="dist", show_default=True)
 @click.option("--no-embed", is_flag=True, default=False, help="Skip vector index build.")
 @click.option("--no-graph", is_flag=True, default=False, help="Skip Kuzu graph build.")
+@click.option("--code/--no-code", default=False, help="Index Python source files (Phase 5).")
 @click.option("--scan", "-s", multiple=True, help="Extra directories to scan for reports/ (may repeat).")
-def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool, scan: tuple[str, ...]) -> None:
+def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool, code: bool, scan: tuple[str, ...]) -> None:
     """Compile inputs to dist/: per-node JSON + index.json + search index + graph."""
     root = Path(input_dir)
     out = Path(output_dir)
-    scan_dirs = [Path(s) for s in scan]
+    scan_dirs = _merge_scan_dirs(scan)
 
     if not root.exists():
         console.print(f"[red]Input directory not found:[/red] {root}")
@@ -74,7 +89,7 @@ def compile(input_dir: str, output_dir: str, no_embed: bool, no_graph: bool, sca
         raise SystemExit(1)
 
     # --- run the full pipeline ---
-    nodes = core.run(root, out, embed=not no_embed, graph=not no_graph, scan_dirs=scan_dirs)
+    nodes = core.run(root, out, embed=not no_embed, graph=not no_graph, scan_dirs=scan_dirs, code=code)
 
     # --- report ---
     table = Table(box=box.SIMPLE_HEAVY, show_lines=False)
@@ -128,6 +143,36 @@ def dev(input_dir: str, output_dir: str, port: int, scan: tuple[str, ...]) -> No
         cwd=site_dir,
         check=True,
     )
+
+
+@main.command(name="serve")
+@click.option("--dist-dir", "-d", default="dist", show_default=True, help="Compiled dist/ directory to serve.")
+@click.option("--host", default="127.0.0.1", show_default=True)
+@click.option("--port", "-p", default=8000, show_default=True)
+def serve_cmd(dist_dir: str, host: str, port: int) -> None:
+    """Serve compiled dist/ over a REST API (Phase 6a)."""
+    import uvicorn
+
+    dist = Path(dist_dir)
+    if not dist.exists():
+        console.print(f"[red]dist dir not found:[/red] {dist}  (run [cyan]agentwiki compile[/cyan] first)")
+        raise SystemExit(1)
+
+    set_dist_dir(dist)
+    console.print(f"[bold cyan]AgentWiki API[/bold cyan] → http://{host}:{port}")
+    uvicorn.run(_api_app, host=host, port=port)
+
+
+@main.command(name="mcp")
+@click.option("--dist-dir", "-d", default="dist", show_default=True, help="Compiled dist/ directory to expose.")
+def mcp_cmd(dist_dir: str) -> None:
+    """Start the AgentWiki MCP server over stdio (Phase 6b)."""
+    dist = Path(dist_dir)
+    if not dist.exists():
+        console.print(f"[red]dist dir not found:[/red] {dist}  (run [cyan]agentwiki compile[/cyan] first)")
+        raise SystemExit(1)
+    console.print(f"[bold cyan]AgentWiki MCP server[/bold cyan] — serving {dist} over stdio")
+    serve_stdio(dist)
 
 
 @main.command(name="build")

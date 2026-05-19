@@ -1,0 +1,42 @@
+{
+  "id": "report:phase6-api-mcp-cytoscape",
+  "type": "agent_report",
+  "title": "Phase 6 Complete: REST API, MCP Server & Cytoscape Graph",
+  "created_at": "2026-05-19T00:00:00+00:00",
+  "agent": {
+    "name": "claude-code",
+    "model": "claude-sonnet-4-6",
+    "run_id": "phase6-api-mcp-cytoscape"
+  },
+  "source": {
+    "git_commit": "7a17168",
+    "branch": "claude/check-phase-3-merge-ZT9VC"
+  },
+  "entities": [
+    { "type": "file", "path": "compiler/api.py", "name": "api" },
+    { "type": "file", "path": "compiler/mcp_server.py", "name": "mcp_server" },
+    { "type": "file", "path": "compiler/cli.py", "name": "cli" },
+    { "type": "file", "path": "tests/test_api.py", "name": "test_api" },
+    { "type": "file", "path": "tests/test_mcp_server.py", "name": "test_mcp_server" },
+    { "type": "file", "path": "site/src/components/GlobalGraph.astro", "name": "GlobalGraph" },
+    { "type": "file", "path": "site/src/components/LocalGraph.astro", "name": "LocalGraph" },
+    { "type": "file", "path": "site/src/pages/graph.astro", "name": "graph" },
+    { "type": "file", "path": "site/src/pages/nodes/[id].astro", "name": "[id]" },
+    { "type": "file", "path": "README.md", "name": "README" }
+  ],
+  "links": [
+    { "type": "modifies", "target": "codefile:compiler/api.py" },
+    { "type": "modifies", "target": "codefile:compiler/mcp_server.py" },
+    { "type": "modifies", "target": "codefile:compiler/cli.py" },
+    { "type": "modifies", "target": "codefile:tests/test_api.py" },
+    { "type": "modifies", "target": "codefile:tests/test_mcp_server.py" },
+    { "type": "modifies", "target": "codefile:site/src/components/GlobalGraph.astro" },
+    { "type": "modifies", "target": "codefile:site/src/components/LocalGraph.astro" },
+    { "type": "modifies", "target": "codefile:site/src/pages/graph.astro" },
+    { "type": "modifies", "target": "codefile:site/src/pages/nodes/[id].astro" },
+    { "type": "modifies", "target": "codefile:README.md" },
+    { "type": "mentions", "target": "concept:fastapi" },
+    { "type": "mentions", "target": "concept:mcp-protocol" },
+    { "type": "mentions", "target": "concept:cytoscape-js" }
+  ]
+}

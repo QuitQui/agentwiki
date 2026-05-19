@@ -1,10 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { getAllNodes, getNode, idToSlug, slugToId, nodeColor } from '../../lib/data'
+import { getAllNodes, getNode, idToSlug, slugToId, nodeColor, getCodeSymbols } from '../../lib/data'
 import { marked } from 'marked'
 import { getSimilar } from '../../lib/similar'
 import { getNeighbors } from '../../lib/graph'
 import { sanitize } from '../../lib/sanitize'
+import LocalGraph from '../../components/LocalGraph.astro'
 
 export async function getStaticPaths() {
   const nodes = getAllNodes()
@@ -17,6 +18,7 @@ const color = nodeColor(node.type)
 
 const related = getSimilar(node.id)
 const neighbors = getNeighbors(node.id)
+const codeSymbols = node.type === 'AgentReport' ? getCodeSymbols(node.id) : []
 
 const date = node.created_at
   ? new Date(node.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -154,6 +156,25 @@ const docHtml = (!node.sections?.length && node.content_text)
       </div>
     )}
 
+    <!-- local graph neighborhood (Phase 5: Cytoscape) -->
+    {neighbors.length > 0 && (
+      <div data-pagefind-ignore style="margin-bottom: 40px;">
+        <div style="
+          font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .06em; color: var(--muted); margin-bottom: 12px;
+          padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        ">
+          Local graph
+        </div>
+        <LocalGraph
+          nodeId={node.id}
+          nodeTitle={node.title}
+          nodeType={node.type}
+          neighbors={neighbors}
+        />
+      </div>
+    )}
+
     <!-- related nodes (Phase 3: vector similarity) -->
     {related.length > 0 && (
       <div data-pagefind-ignore style="margin-bottom: 40px;">
@@ -210,6 +231,35 @@ const docHtml = (!node.sections?.length && node.content_text)
               <span style={`font-size: 11px; color: ${nb.hops === 1 ? 'var(--accent)' : 'var(--muted)'};`}>
                 {nb.hops === 1 ? '1 hop' : '2 hops'}
               </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- related code symbols (Phase 5: tree-sitter) -->
+    {codeSymbols.length > 0 && (
+      <div data-pagefind-ignore style="margin-bottom: 40px;">
+        <div style="
+          font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .06em; color: #34d399; margin-bottom: 12px;
+          padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        ">
+          Related code symbols
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+          {codeSymbols.map(sym => (
+            <a
+              href={`/nodes/${idToSlug(sym.id)}`}
+              style="
+                display: inline-flex; align-items: center; gap: 8px;
+                background: rgba(20,83,45,.25); border: 1px solid rgba(52,211,153,.3);
+                border-radius: 10px; padding: 8px 14px; font-size: 13px;
+                color: var(--text); text-decoration: none;
+              "
+            >
+              <span style="font-size: 11px; color: #34d399;">{sym.type === 'Function' ? 'ƒ' : '◇'}</span>
+              <span>{sym.title}</span>
             </a>
           ))}
         </div>

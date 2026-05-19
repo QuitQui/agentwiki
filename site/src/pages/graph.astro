@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro'
 import { getGraphStats } from '../lib/graph'
 import { getAllNodes, idToSlug, nodeColor } from '../lib/data'
+import GlobalGraph from '../components/GlobalGraph.astro'
 
 const stats = getGraphStats()
 const nodes = getAllNodes()
@@ -54,12 +55,9 @@ const graphData = {
       </div>
     )}
 
-    <!-- force graph canvas -->
-    <div style="
-      background: rgba(15,23,42,.9); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden; margin-bottom: 40px;
-    ">
-      <canvas id="graph-canvas" width="1040" height="520" style="width:100%; display:block;"></canvas>
+    <!-- Cytoscape.js force graph -->
+    <div style="margin-bottom: 40px;">
+      <GlobalGraph nodes={graphData.nodes} edges={graphData.edges} />
     </div>
 
     <!-- top by degree table -->
@@ -90,77 +88,3 @@ const graphData = {
 
   </main>
 </Base>
-
-<script define:vars={{ graphData }}>
-// Minimal force-directed graph — no external deps
-const canvas = document.getElementById('graph-canvas')
-const ctx = canvas.getContext('2d')
-const W = canvas.width, H = canvas.height
-const nodes = graphData.nodes.map(n => ({ ...n, x: W / 2 + (Math.random() - 0.5) * 300, y: H / 2 + (Math.random() - 0.5) * 200, vx: 0, vy: 0 }))
-const edges = graphData.edges
-const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]))
-
-const REPEL = 4000, ATTRACT = 0.005, DAMPING = 0.85, CENTER = 0.003
-
-function tick() {
-  for (const n of nodes) {
-    n.vx += (W / 2 - n.x) * CENTER
-    n.vy += (H / 2 - n.y) * CENTER
-  }
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const a = nodes[i], b = nodes[j]
-      const dx = b.x - a.x, dy = b.y - a.y
-      const dist = Math.sqrt(dx * dx + dy * dy) || 1
-      const force = REPEL / (dist * dist)
-      a.vx -= (dx / dist) * force; a.vy -= (dy / dist) * force
-      b.vx += (dx / dist) * force; b.vy += (dy / dist) * force
-    }
-  }
-  for (const e of edges) {
-    const a = nodeMap[e.source], b = nodeMap[e.target]
-    if (!a || !b) continue
-    const dx = b.x - a.x, dy = b.y - a.y
-    a.vx += dx * ATTRACT; a.vy += dy * ATTRACT
-    b.vx -= dx * ATTRACT; b.vy -= dy * ATTRACT
-  }
-  for (const n of nodes) {
-    n.vx *= DAMPING; n.vy *= DAMPING
-    n.x += n.vx; n.y += n.vy
-    n.x = Math.max(30, Math.min(W - 30, n.x))
-    n.y = Math.max(20, Math.min(H - 20, n.y))
-  }
-}
-
-function draw() {
-  ctx.clearRect(0, 0, W, H)
-  ctx.strokeStyle = 'rgba(100,116,139,.4)'
-  ctx.lineWidth = 1
-  for (const e of edges) {
-    const a = nodeMap[e.source], b = nodeMap[e.target]
-    if (!a || !b) continue
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
-  }
-  for (const n of nodes) {
-    ctx.beginPath()
-    ctx.arc(n.x, n.y, 8, 0, Math.PI * 2)
-    ctx.fillStyle = n.color + 'cc'
-    ctx.fill()
-    ctx.strokeStyle = n.color
-    ctx.lineWidth = 1.5
-    ctx.stroke()
-    ctx.fillStyle = '#f1f5f9'
-    ctx.font = '11px system-ui, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(n.title.slice(0, 22), n.x, n.y + 20)
-  }
-}
-
-let frame = 0
-function loop() {
-  tick(); draw()
-  frame++
-  if (frame < 300) requestAnimationFrame(loop)
-}
-loop()
-</script>

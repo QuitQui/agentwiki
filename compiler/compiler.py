@@ -7,13 +7,14 @@ from pathlib import Path
 from compiler.models import KnowledgeNode, Edge
 from compiler.parser.html_report import parse_report_dir
 from compiler.parser.markdown_doc import parse_markdown
+from compiler.parser.code_file import parse_code_file
 from compiler.search import build_search_index
 from compiler.graph import build_graph
 
 
 def _safe_id_to_filename(node_id: str) -> str:
-    """Convert a node id like 'report:foo-bar' to a safe filename 'report__foo-bar.json'."""
-    return node_id.replace(":", "__") + ".json"
+    """Convert a node id to a safe flat filename (no path separators)."""
+    return node_id.replace(":", "__").replace("/", "-") + ".json"
 
 
 def _collect_report_dirs(reports_dir: Path) -> list[Path]:
@@ -37,7 +38,46 @@ def _extra_reports_dirs(scan_dirs: list[Path]) -> list[Path]:
     return result
 
 
-def compile_inputs(input_dir: Path, scan_dirs: list[Path] | None = None) -> list[KnowledgeNode]:
+_SKIP_DIRS = frozenset({".venv", "venv", "__pycache__", ".git", "node_modules", ".tox", "build", "dist"})
+
+
+def _collect_code_files(scan_dirs: list[Path]) -> list[tuple[Path, Path]]:
+    """Return (py_file, base_scan_dir) pairs, deduplicated by resolved path."""
+    seen: set[Path] = set()
+    result: list[tuple[Path, Path]] = []
+    for scan in scan_dirs:
+        if not scan.exists():
+            continue
+        for py_file in sorted(scan.rglob("*.py")):
+            if any(part in _SKIP_DIRS for part in py_file.parts):
+                continue
+            resolved = py_file.resolve()
+            if resolved not in seen:
+                seen.add(resolved)
+                result.append((py_file, scan))
+    return result
+
+
+def _link_code_to_reports(nodes: list[KnowledgeNode]) -> None:
+    """Add related_to edges from CodeFile nodes to AgentReport nodes sharing file entities."""
+    report_nodes = [n for n in nodes if n.get("type") == "AgentReport"]
+    code_nodes = [n for n in nodes if n.get("type") == "CodeFile"]
+    for code_node in code_nodes:
+        code_paths = {e.get("path", "") for e in code_node.get("entities", []) if e.get("type") == "file"}
+        for report in report_nodes:
+            report_paths = {e.get("path", "") for e in report.get("entities", []) if e.get("type") == "file"}
+            matched = any(
+                cp and rp and (cp.endswith(rp) or rp.endswith(cp))
+                for cp in code_paths for rp in report_paths
+            )
+            if matched:
+                edge = Edge(source_id=code_node["id"], target_id=report["id"], edge_type="related_to")
+                links = code_node.setdefault("outgoing_links", [])
+                if edge not in links:
+                    links.append(edge)
+
+
+def compile_inputs(input_dir: Path, scan_dirs: list[Path] | None = None, code: bool = False) -> list[KnowledgeNode]:
     """Discover and parse all inputs under input_dir. Returns raw nodes (no backlinks yet)."""
     nodes: list[KnowledgeNode] = []
     seen_report_dirs: set[Path] = set()
@@ -58,6 +98,11 @@ def compile_inputs(input_dir: Path, scan_dirs: list[Path] | None = None) -> list
     if docs_dir.exists():
         for f in sorted(docs_dir.glob("*.md")):
             nodes.append(parse_markdown(f))
+
+    if code and scan_dirs:
+        for py_file, base in _collect_code_files(scan_dirs):
+            nodes.extend(parse_code_file(py_file, base))
+        _link_code_to_reports(nodes)
 
     return nodes
 
@@ -120,9 +165,10 @@ def run(
     embed: bool = True,
     graph: bool = True,
     scan_dirs: list[Path] | None = None,
+    code: bool = False,
 ) -> list[KnowledgeNode]:
     """Full pipeline: parse → backlinks → emit → search index → graph. Returns the final node list."""
-    nodes = compile_inputs(input_dir, scan_dirs=scan_dirs)
+    nodes = compile_inputs(input_dir, scan_dirs=scan_dirs, code=code)
     nodes = resolve_backlinks(nodes)
     emit(nodes, output_dir)
     if embed:

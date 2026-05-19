@@ -1,0 +1,37 @@
+{
+  "id": "report:2026-05-19-openrouter-review-scan-fix",
+  "type": "agent_report",
+  "title": "OpenRouter Review & AgentWiki --scan Fix",
+  "created_at": "2026-05-19T00:00:00Z",
+  "agent": {
+    "name": "claude-code",
+    "model": "claude-sonnet-4-6",
+    "run_id": "2026-05-19-openrouter-review-scan-fix"
+  },
+  "source": {
+    "git_commit": "7a17168",
+    "branch": "claude/check-phase-3-merge-ZT9VC"
+  },
+  "entities": [
+    { "type": "file", "path": "strudel-ai/src/lib/ai.ts", "name": "ai.ts" },
+    { "type": "file", "path": "strudel-ai/src/lib/models.ts", "name": "models.ts" },
+    { "type": "file", "path": "strudel-ai/src/lib/models.test.ts", "name": "models.test.ts" },
+    { "type": "file", "path": "agentwiki/compiler/compiler.py", "name": "compiler.py" },
+    { "type": "file", "path": "agentwiki/compiler/cli.py", "name": "cli.py" },
+    { "type": "file", "path": "agentwiki/tests/test_compiler_scan.py", "name": "test_compiler_scan.py" },
+    { "type": "file", "path": "CLAUDE.md", "name": "CLAUDE.md" },
+    { "type": "module", "name": "OpenRouter streaming" },
+    { "type": "module", "name": "AgentWiki multi-source scan" }
+  ],
+  "links": [
+    { "type": "modifies", "target": "codefile:strudel-ai/src/lib/ai.ts" },
+    { "type": "modifies", "target": "codefile:strudel-ai/src/lib/models.ts" },
+    { "type": "modifies", "target": "codefile:strudel-ai/src/lib/models.test.ts" },
+    { "type": "modifies", "target": "codefile:agentwiki/compiler/compiler.py" },
+    { "type": "modifies", "target": "codefile:agentwiki/compiler/cli.py" },
+    { "type": "modifies", "target": "codefile:agentwiki/tests/test_compiler_scan.py" },
+    { "type": "modifies", "target": "codefile:CLAUDE.md" },
+    { "type": "mentions", "target": "concept:openrouter-api" },
+    { "type": "mentions", "target": "concept:agentwiki-scan" }
+  ]
+}

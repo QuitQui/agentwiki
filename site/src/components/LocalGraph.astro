@@ -1,0 +1,124 @@
+---
+import type { Neighbor } from '../lib/graph'
+import { nodeColor } from '../lib/data'
+
+interface Props {
+  nodeId: string
+  nodeTitle: string
+  nodeType: string
+  neighbors: Neighbor[]
+}
+
+const { nodeId, nodeTitle, nodeType, neighbors } = Astro.props
+
+const centerColor = nodeColor(nodeType)
+
+const cyNodes = [
+  { id: nodeId, label: nodeTitle.slice(0, 24), color: centerColor, isCenter: true },
+  ...neighbors.map(nb => ({
+    id: nb.id,
+    label: nb.title.slice(0, 24),
+    color: nodeColor(nb.type),
+    isCenter: false,
+    hops: nb.hops,
+  })),
+]
+
+const cyEdges = neighbors.map(nb => ({
+  source: nb.hops === 1 ? nodeId : null,
+  target: nb.id,
+})).filter(e => e.source !== null)
+---
+
+<div
+  id="local-graph"
+  style="width: 100%; height: 280px; background: rgba(15,23,42,.85); border-radius: 14px; border: 1px solid var(--border);"
+></div>
+
+<script define:vars={{ cyNodes, cyEdges }}>
+  const CYTOSCAPE_CDN = 'https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js'
+
+  async function loadCytoscape() {
+    if (window.cytoscape) return window.cytoscape
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script')
+      s.src = CYTOSCAPE_CDN
+      s.onload = resolve
+      s.onerror = reject
+      document.head.appendChild(s)
+    })
+    return window.cytoscape
+  }
+
+  async function initGraph() {
+    const container = document.getElementById('local-graph')
+    if (!container || cyNodes.length < 2) return
+
+    const cy = await loadCytoscape()
+
+    const instance = cy({
+      container,
+      elements: [
+        ...cyNodes.map(n => ({
+          group: 'nodes',
+          data: { id: n.id, label: n.label, color: n.color, isCenter: n.isCenter },
+        })),
+        ...cyEdges.map(e => ({
+          group: 'edges',
+          data: { source: e.source, target: e.target },
+        })),
+      ],
+      layout: { name: 'concentric', animate: true, animationDuration: 400, minNodeSpacing: 40 },
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': 'data(color)',
+            'border-color': 'data(color)',
+            'border-width': 1.5,
+            label: 'data(label)',
+            'font-size': 10,
+            color: '#f1f5f9',
+            'text-valign': 'bottom',
+            'text-margin-y': 4,
+            'text-outline-width': 2,
+            'text-outline-color': '#0f172a',
+            width: 16,
+            height: 16,
+          },
+        },
+        {
+          selector: 'node[?isCenter]',
+          style: {
+            width: 24,
+            height: 24,
+            'border-width': 3,
+            'border-color': '#38bdf8',
+          },
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 1,
+            'line-color': 'rgba(100,116,139,.4)',
+            'target-arrow-color': 'rgba(100,116,139,.4)',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+            'arrow-scale': 0.6,
+          },
+        },
+      ],
+    })
+
+    instance.on('tap', 'node', (evt) => {
+      const id = evt.target.id()
+      const slug = id.replace(/:/g, '__').replace(/\//g, '-')
+      window.location.href = `/nodes/${slug}`
+    })
+
+    instance.on('mouseover', 'node', () => { container.style.cursor = 'pointer' })
+    instance.on('mouseout', 'node', () => { container.style.cursor = '' })
+  }
+
+  initGraph()
+</script>

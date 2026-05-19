@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenRouter Review &amp; AgentWiki --scan Fix</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-dim: #1f6feb33;
+      --green: #3fb950;
+      --green-dim: #1a3a1f;
+      --yellow: #d29922;
+      --yellow-dim: #2d2109;
+      --red: #f85149;
+      --red-dim: #3d0f0f;
+      --purple: #bc8cff;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    article > header {
+      margin-bottom: 40px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .meta span { display: flex; align-items: center; gap: 4px; }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+    }
+
+    .badge.file { border-color: #1f6feb; color: var(--accent); background: var(--accent-dim); }
+    .badge.module { border-color: #3fb95044; color: var(--green); background: var(--green-dim); }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    section h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    p { margin-bottom: 12px; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      padding-left: 20px;
+      color: var(--text);
+    }
+
+    li { margin-bottom: 6px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) td { background: var(--surface); }
+    tbody tr:hover td { background: var(--surface2); }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      background: var(--surface2);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--purple);
+    }
+
+    .callout {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      border-left: 3px solid;
+    }
+
+    .callout.decision { background: var(--accent-dim); border-color: var(--accent); }
+    .callout.warning  { background: var(--yellow-dim); border-color: var(--yellow); }
+    .callout.success  { background: var(--green-dim);  border-color: var(--green);  }
+    .callout.danger   { background: var(--red-dim);    border-color: var(--red);    }
+
+    .callout strong { display: block; margin-bottom: 4px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+
+    .test-result {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      color: var(--green);
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<article
+  data-node-id="report:2026-05-19-openrouter-review-scan-fix"
+  data-node-type="agent_report"
+  data-agent="claude-code"
+  data-commit="7a17168"
+>
+  <header>
+    <div class="eyebrow">Agent Report · claude-code</div>
+    <h1>OpenRouter Review &amp; AgentWiki --scan Fix</h1>
+    <div class="meta">
+      <span>📅 <time datetime="2026-05-19">May 19, 2026</time></span>
+      <span>🌿 <code>claude/check-phase-3-merge-ZT9VC</code></span>
+      <span>🔖 <code>7a17168</code></span>
+    </div>
+    <div class="badges">
+      <span class="badge file">strudel-ai/src/lib/ai.ts</span>
+      <span class="badge file">strudel-ai/src/lib/models.ts</span>
+      <span class="badge file">strudel-ai/src/lib/models.test.ts</span>
+      <span class="badge file">agentwiki/compiler/compiler.py</span>
+      <span class="badge file">agentwiki/compiler/cli.py</span>
+      <span class="badge file">agentwiki/tests/test_compiler_scan.py</span>
+      <span class="badge file">CLAUDE.md</span>
+      <span class="badge module">OpenRouter streaming</span>
+      <span class="badge module">AgentWiki --scan</span>
+    </div>
+  </header>
+
+  <section data-section-type="summary">
+    <h2>Summary</h2>
+    <p>This session had two goals: (1) close out the OpenRouter API migration in StrudelAI through a two-stage subagent review, and (2) diagnose and fix a long-standing AgentWiki limitation where reports from sibling projects were invisible to the compiler.</p>
+
+    <div class="callout decision">
+      <strong>Decision — OpenRouter quality gate</strong>
+      The spec compliance review passed cleanly. The code quality review identified four Important-severity issues in the streaming layer and model-persistence code. All four were fixed before the task was marked complete, matching the subagent-driven-development discipline of no open issues at merge time.
+    </div>
+
+    <p>The four quality fixes in StrudelAI: a null-body guard before calling <code>res.body.getReader()</code> (crashes on network error without it), a <code>try/catch</code> wrapping <code>JSON.parse(argsBuffer)</code> (malformed model output would throw uncaught), <code>loadModel()</code> now validates the stored value against the <code>FREE_MODELS</code> whitelist (stale localStorage from a previous API would silently select an invalid model), and four unit tests for <code>loadModel</code>/<code>saveModel</code> added in <code>models.test.ts</code>.</p>
+
+    <div class="callout decision">
+      <strong>Decision — Branch &amp; PR rule added to CLAUDE.md</strong>
+      The session that implemented OpenRouter committed directly to <code>main</code>. To prevent recurrence, a "Branch and PR workflow" rule was added to the workspace CLAUDE.md requiring all feature/fix work to go on a named branch and ship via <code>gh pr create</code>.
+    </div>
+
+    <p>The AgentWiki discovery bug: <code>compile_inputs()</code> hard-coded a single lookup at <code>input_dir/reports/</code>. Reports from sibling projects like <code>strudel-ai/reports/</code> were never visited. The fix adds a <code>--scan</code> flag that walks each given directory at depth-0 and depth-1, collecting every <code>reports/</code> subfolder it finds, deduplicating by resolved path. Running <code>uv run agentwiki compile --scan /path/to/workspace</code> now surfaces 9 nodes where 5 were visible before.</p>
+  </section>
+
+  <section data-section-type="changes">
+    <h2>Changes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>What changed</th>
+          <th>Lines ±</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>strudel-ai/src/lib/ai.ts</code></td>
+          <td>Null-body guard before <code>getReader()</code>; try/catch around <code>JSON.parse(argsBuffer)</code></td>
+          <td>+8</td>
+        </tr>
+        <tr>
+          <td><code>strudel-ai/src/lib/models.ts</code></td>
+          <td><code>loadModel()</code> validates stored value against <code>FREE_MODELS</code> whitelist</td>
+          <td>+5 / −2</td>
+        </tr>
+        <tr>
+          <td><code>strudel-ai/src/lib/models.test.ts</code></td>
+          <td>New file — 4 unit tests for <code>loadModel</code> and <code>saveModel</code></td>
+          <td>+52</td>
+        </tr>
+        <tr>
+          <td><code>agentwiki/compiler/compiler.py</code></td>
+          <td>Added <code>_collect_report_dirs</code>, <code>_extra_reports_dirs</code>; updated <code>compile_inputs</code> and <code>run</code> to accept <code>scan_dirs</code></td>
+          <td>+38 / −6</td>
+        </tr>
+        <tr>
+          <td><code>agentwiki/compiler/cli.py</code></td>
+          <td>Added <code>--scan</code> / <code>-s</code> option to <code>compile</code>, <code>dev</code>, and <code>build</code> commands</td>
+          <td>+18 / −3</td>
+        </tr>
+        <tr>
+          <td><code>agentwiki/tests/test_compiler_scan.py</code></td>
+          <td>New file — 11 tests across 3 classes covering <code>_collect_report_dirs</code>, <code>_extra_reports_dirs</code>, and <code>compile_inputs</code> scan integration</td>
+          <td>+117</td>
+        </tr>
+        <tr>
+          <td><code>CLAUDE.md</code></td>
+          <td>Added "Branch and PR workflow" rule: no direct-to-main commits, all work via named branch + <code>gh pr create</code></td>
+          <td>+12</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-section-type="affected-code">
+    <h2>Affected Code</h2>
+    <ul>
+      <li><strong><code>streamToolCall&lt;T&gt;()</code></strong> (<code>ai.ts</code>) — added null body guard and JSON parse error handling</li>
+      <li><strong><code>loadModel()</code></strong> (<code>models.ts</code>) — now validates stored string against <code>FREE_MODELS</code> before returning</li>
+      <li><strong><code>saveModel()</code></strong> (<code>models.ts</code>) — covered by new unit tests</li>
+      <li><strong><code>_collect_report_dirs(reports_dir)</code></strong> (<code>compiler.py</code>) — new helper: returns sorted subdirs containing <code>report.html</code></li>
+      <li><strong><code>_extra_reports_dirs(scan_dirs)</code></strong> (<code>compiler.py</code>) — new helper: depth-0 + depth-1 reports discovery with resolved-path dedup</li>
+      <li><strong><code>compile_inputs(input_dir, scan_dirs)</code></strong> (<code>compiler.py</code>) — updated to merge primary and extra report dirs</li>
+      <li><strong><code>run(..., scan_dirs)</code></strong> (<code>compiler.py</code>) — passes <code>scan_dirs</code> through to <code>compile_inputs</code></li>
+      <li><strong><code>compile</code> / <code>dev</code> / <code>build_cmd</code></strong> (<code>cli.py</code>) — each gains a repeatable <code>--scan</code> / <code>-s</code> option</li>
+    </ul>
+  </section>
+
+  <section data-section-type="evidence">
+    <h2>Evidence</h2>
+
+    <p><strong>StrudelAI tests (after quality fixes):</strong></p>
+    <div class="test-result">39 passed in vitest — models.test.ts 4/4, ai.test.ts streaming suite all green</div>
+
+    <p style="margin-top:16px"><strong>AgentWiki compiler scan tests:</strong></p>
+    <div class="test-result">tests/test_compiler_scan.py  11/11 passed  (1.59s)
+TestCollectReportDirs           3/3  ✓
+TestExtraReportsDirs            4/4  ✓
+TestCompileInputsScan           4/4  ✓</div>
+
+    <p style="margin-top:16px"><strong>Full AgentWiki test suite:</strong></p>
+    <div class="test-result">23 passed in 2.03s</div>
+
+    <p style="margin-top:16px"><strong>Node count before/after --scan:</strong></p>
+    <div class="callout success">
+      <strong>Result</strong>
+      <code>uv run agentwiki compile --scan /Users/jimchien/Desktop/Sideproject/claude</code> → <strong>9 nodes</strong> (previously 5 without scan). The 4 newly visible nodes include both strudel-ai reports and any other sibling project reports in the workspace.
+    </div>
+  </section>
+
+  <section data-section-type="open-questions">
+    <h2>Open Questions</h2>
+    <ul>
+      <li>StrudelAI OpenRouter migration commits landed directly on <code>main</code> — no retroactive PR is possible; all future work must follow the new branch/PR rule now in CLAUDE.md.</li>
+      <li><code>--scan</code> is a CLI flag today; a potential improvement is a config file (<code>agentwiki.toml</code>) that persists scan directories so the flag doesn't need to be repeated on every compile/dev invocation.</li>
+      <li>AgentWiki Phase 5 (tree-sitter codebase integration) and Phase 6 (Agent API / MCP) remain unstarted.</li>
+      <li>StrudelAI v0.2 features (multi-voice, mutation, teach mode) and Playwright E2E tests are deferred to the next session.</li>
+    </ul>
+  </section>
+
+</article>
+</div>
+</body>
+</html>
