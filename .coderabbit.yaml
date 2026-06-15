@@ -14,7 +14,5 @@ reviews:
   tools:
     gitleaks:
       enabled: true           # secret scanning on every PR
-    biome:
-      enabled: true           # JS/TS (Astro) project
 chat:
-  auto_reply: true
+  auto_reply: false           # require explicit @coderabbitai mention
